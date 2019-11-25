@@ -15,16 +15,16 @@ knitr::opts_chunk$set(echo = TRUE)
 
 This is the first post in what will hopefully transpire to be a multi-segment post, just to get familiar with Markdown syntax and options.
 
-I've opted to start with *.rmd* to construct my posts because 
+Posts will be written with *.rmd* because:
 
-1.  I like that my workflow can be done entirely within RStudio, and  
-2.  the amazing addition of the `reticulate::` library provides flexibility for writing in both python and R seamlessly
+1.  It allows the entire workflow to be done within RStudio, and  
+2.  The amazing addition of the `reticulate::` library allows code to be writen in python and R seamlessly
 
-Since this is coming from a complete noob, I'll keep the first post simple. Today's post will deal with Pandoc's markdown syntax.
+Today's post will deal with Pandoc's markdown syntax.
 
 ### Pandoc Markdown: A quick overview
 
-I've put together a quick reference table for text formating in markdown. Will add on to it as I learn more, but for now this is purely taken from the [cheatsheet](https://rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf) put together by RStudio.
+Have put together a quick reference table for text formating in markdown. Will add on to it as I learn more, but for now this is taken from the [cheatsheet](https://rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf) put together by RStudio.
 
 |Description|Code|Output|
 |-----|-----|-----|
@@ -37,7 +37,7 @@ I've put together a quick reference table for text formating in markdown. Will a
 |Strikethrough|&#126;&#126;strikethrough&#126;&#126;|~~strikethrough~~|
 |Use forward slash to escape characters|&#92;* &#92;_ &#92;&#92;|\* \_ \\|
 |Endash or emdash|Endash: &#45;&#45; Emdash: &#45;&#45;&#45;|Endash: --; Emdash: ---|
-|Use \$ to write latex equations|&#36;&nbsp;&#36;E &#61; mc&#123;2&#125;&#36;&nbsp;&#36;|$$E = mc^{2}$$|
+|Use \$ to write latex equations|&#36;&nbsp;&#36;E &#61; mc&#94;&#123;2&#125;&#36;&nbsp;&#36;|$$E = mc^{2}$$|
 |Block quote|&#62; Block quote|> Block quote|
 |Use \# for headers. 6 sizes available|\#\#\# Header|### Header|
 |You can also use an \#anchor to link back to a specific header in the page|\#\#\# Header \{\#anchor\}|### Header|

@@ -18,19 +18,19 @@
       
       <guid>/2019/11/25/how-to-markdown-formatting-in-markdown/</guid>
       <description>R Markdown Part 1: Formatting in Markdown This is the first post in what will hopefully transpire to be a multi-segment post, just to get familiar with Markdown syntax and options.
-I’ve opted to start with .rmd to construct my posts because
-I like that my workflow can be done entirely within RStudio, and
- the amazing addition of the reticulate:: library provides flexibility for writing in both python and R seamlessly  Since this is coming from a complete noob, I’ll keep the first post simple.</description>
+Posts will be written with .rmd because:
+It allows the entire workflow to be done within RStudio, and
+ The amazing addition of the reticulate:: library allows code to be writen in python and R seamlessly  Today’s post will deal with Pandoc’s markdown syntax.</description>
     </item>
     
     <item>
-      <title>A Plain Markdown Post</title>
-      <link>/2016/12/30/a-plain-markdown-post/</link>
-      <pubDate>Fri, 30 Dec 2016 21:49:57 -0700</pubDate>
+      <title>Hello Markdown</title>
+      <link>/2016/12/30/hello-markdown/</link>
+      <pubDate>Fri, 30 Dec 2016 00:00:00 +0000</pubDate>
       
-      <guid>/2016/12/30/a-plain-markdown-post/</guid>
+      <guid>/2016/12/30/hello-markdown/</guid>
       <description>This is a post written in plain Markdown (*.md) instead of R Markdown (*.Rmd). The major differences are:
- You cannot run any R code in a plain Markdown document, whereas in an R Markdown document, you can embed R code chunks (```{r}); A plain Markdown post is rendered through Blackfriday, and an R Markdown document is compiled by rmarkdown and Pandoc.  There are many differences in syntax between Blackfriday&amp;rsquo;s Markdown and Pandoc&amp;rsquo;s Markdown.</description>
+You cannot run any R code in a plain Markdown document, whereas in an R Markdown document, you can embed R code chunks (```{r}); A plain Markdown post is rendered through Blackfriday, and an R Markdown document is compiled by rmarkdown and Pandoc.  There are many differences in syntax between Blackfriday’s Markdown and Pandoc’s Markdown.</description>
     </item>
     
     <item>
@@ -45,9 +45,9 @@ summary(cars) ## speed dist ## Min. : 4.0 Min. : 2.00 ## 1st Qu.:12.0 1st Qu.: 2
     </item>
     
     <item>
-      <title>Lorem Ipsum</title>
+      <title>lorem ipsum</title>
       <link>/2015/01/01/lorem-ipsum/</link>
-      <pubDate>Thu, 01 Jan 2015 13:09:13 -0600</pubDate>
+      <pubDate>Thu, 01 Jan 2015 00:00:00 +0000</pubDate>
       
       <guid>/2015/01/01/lorem-ipsum/</guid>
       <description>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</description>

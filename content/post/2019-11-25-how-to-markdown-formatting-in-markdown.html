@@ -1,0 +1,147 @@
+---
+title: How to Markdown - Formatting in Markdown
+author: tyj
+date: '2019-11-25'
+slug: how-to-markdown-formatting-in-markdown
+categories: []
+tags: []
+---
+
+
+
+<div id="r-markdown-part-1-formatting-in-markdown" class="section level2">
+<h2>R Markdown Part 1: Formatting in Markdown</h2>
+<p>This is the first post in what will hopefully transpire to be a multi-segment post, just to get familiar with Markdown syntax and options.</p>
+<p>I’ve opted to start with <em>.rmd</em> to construct my posts because</p>
+<ol style="list-style-type: decimal">
+<li>I like that my workflow can be done entirely within RStudio, and<br />
+</li>
+<li>the amazing addition of the <code>reticulate::</code> library provides flexibility for writing in both python and R seamlessly</li>
+</ol>
+<p>Since this is coming from a complete noob, I’ll keep the first post simple. Today’s post will deal with Pandoc’s markdown syntax.</p>
+<div id="pandoc-markdown-a-quick-overview" class="section level3">
+<h3>Pandoc Markdown: A quick overview</h3>
+<p>I’ve put together a quick reference table for text formating in markdown. Will add on to it as I learn more, but for now this is purely taken from the <a href="https://rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf">cheatsheet</a> put together by RStudio.</p>
+<table>
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Description</th>
+<th>Code</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Plain text</td>
+<td>Plain text</td>
+<td>Plain text</td>
+</tr>
+<tr class="even">
+<td>Use two spaces at the end of line to signal new paragraph</td>
+<td>New    paragraph</td>
+<td>New <br> paragraph</td>
+</tr>
+<tr class="odd">
+<td>Italics</td>
+<td>*Italics*</td>
+<td><em>Italics</em></td>
+</tr>
+<tr class="even">
+<td>Bold</td>
+<td>**Bold**</td>
+<td><strong>Bold</strong></td>
+</tr>
+<tr class="odd">
+<td>Quoting verbatim, or package name</td>
+<td>`dplyr`</td>
+<td><code>dplyr</code></td>
+</tr>
+<tr class="even">
+<td>Superscript/Subscript</td>
+<td>Normal ^superscript^ ~subscript~</td>
+<td>Normal <sup>superscript</sup> <sub>subscript</sub></td>
+</tr>
+<tr class="odd">
+<td>Strikethrough</td>
+<td>~~strikethrough~~</td>
+<td><del>strikethrough</del></td>
+</tr>
+<tr class="even">
+<td>Use forward slash to escape characters</td>
+<td>\* \_ \\</td>
+<td>* _ \</td>
+</tr>
+<tr class="odd">
+<td>Endash or emdash</td>
+<td>Endash: -- Emdash: ---</td>
+<td>Endash: –; Emdash: —</td>
+</tr>
+<tr class="even">
+<td>Use $ to write latex equations</td>
+<td>$ $E = mc{2}$ $</td>
+<td><span class="math display">\[E = mc^{2}\]</span></td>
+</tr>
+<tr class="odd">
+<td>Block quote</td>
+<td>&gt; Block quote</td>
+<td>&gt; Block quote</td>
+</tr>
+<tr class="even">
+<td>Use # for headers. 6 sizes available</td>
+<td>### Header</td>
+<td>### Header</td>
+</tr>
+<tr class="odd">
+<td>You can also use an #anchor to link back to a specific header in the page</td>
+<td>### Header {#anchor}</td>
+<td>### Header</td>
+</tr>
+<tr class="even">
+<td>Create a link back to anchor</td>
+<td>Jump to [Header](#anchor)</td>
+<td>Jump to <a href="#anchor">Header</a></td>
+</tr>
+<tr class="odd">
+<td>Add hyperlink</td>
+<td>[link](google.com)</td>
+<td><a href="google.com">link</a></td>
+</tr>
+<tr class="even">
+<td>Inline comments are possible</td>
+<td>&lt;!--Text comment--&gt; blah</td>
+<td><!--Text comment--> blah</td>
+</tr>
+<tr class="odd">
+<td>You can insert pics from the web…</td>
+<td>![Caption](link)</td>
+<td><img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" alt="Caption" /></td>
+</tr>
+<tr class="even">
+<td>…or from a local directory</td>
+<td>![Caption](path)</td>
+<td><img src="/img/2019-11-25-testlogo.png" alt="Caption" /></td>
+</tr>
+<tr class="odd">
+<td>Insert order/unordered lists</td>
+<td>* unordered list <br> 1. Ordered list</td>
+<td>* unordered list <br> 1. Ordered list</td>
+</tr>
+<tr class="even">
+<td>Rule break</td>
+<td>***</td>
+<td>this has a *** break</td>
+</tr>
+<tr class="odd">
+<td>Footnote</td>
+<td>A footnote [^1] <br> [^1]: Footnote here</td>
+<td>A footnote [^1] <br> [^1]: Footnote here</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>

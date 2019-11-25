@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>A Hugo website</title>
+    <title>playpen</title>
     <link>/</link>
-    <description>Recent content on A Hugo website</description>
+    <description>Recent content on playpen</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 25 Nov 2019 21:48:51 -0700</lastBuildDate>
@@ -18,7 +18,7 @@
       
       <guid>/about/</guid>
       <description>Personal code playground. Written with blogdown.
-Theme by @jrutheiser/hugo-lithium-theme and @yihui/hugo-lithium</description>
+Theme by @jrutheiser/hugo-lithium-theme and @yihui/hugo-lithium. Site built using walkthrough by Alison Hill and blogdown book by Xie Yihui</description>
     </item>
     
     <item>

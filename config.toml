@@ -1,6 +1,6 @@
 baseurl = "/"
 languageCode = "en-us"
-title = "YJ's Sandbox"
+title = "playpen"
 theme = "hugo-lithium"
 googleAnalytics = ""
 disqusShortname = ""

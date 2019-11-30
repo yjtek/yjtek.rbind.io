@@ -78,8 +78,8 @@
 <p><em>Reproduced from <a href="https://fabiandablander.com/r/Spurious-Correlation.html">Fabian Dablander</a></em>
 <br>
 <br></p>
-<div id="introduction" class="section level4">
-<h4>Introduction</h4>
+<div id="introduction" class="section level3">
+<h3>Introduction</h3>
 <p>This piece will explore the implications of random walk processes in inducing spurious correlations and false positives in hypothesis testing. Why can supposedly independent processes be heavily correlated?</p>
 Recall that an AR series generally takes the following form:<br />
 <br>
@@ -91,9 +91,10 @@ where <span class="math inline">\(\phi\)</span> measures the autocorrelation, an
 <br>
 <br></p>
 </div>
-<div id="simulation" class="section level4">
-<h4>Simulation</h4>
+<div id="simulation" class="section level3">
+<h3>Simulation</h3>
 <p>To explore the impact of <span class="math inline">\(\phi\)</span> in generating data, we build a function that simulates a data generating process given values of</p>
+
 <pre class="r"><code>simulate_ar &lt;- function(n, phi, sigma = .1) {
   y &lt;- rep(0, n)
   
@@ -103,6 +104,7 @@ where <span class="math inline">\(\phi\)</span> measures the autocorrelation, an
   
   y
 }</code></pre>
+
 <p>where <span class="math inline">\(n\)</span> determines the number of datapoints to generate; <span class="math inline">\(\phi\)</span> is the first order autocorrelation, and <span class="math inline">\(\sigma\)</span> is the variance of the errors in <span class="math inline">\(\epsilon\)</span>.</p>
 <p>As an example, let’s generate 3 AR(1) processes and 3 random walks and chart them. Notice how much better behaved the AR processes are compared to the random walk.</p>
 <pre class="r"><code>n &lt;- 100

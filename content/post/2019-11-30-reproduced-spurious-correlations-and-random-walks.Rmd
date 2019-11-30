@@ -28,7 +28,7 @@ where $\phi$ measures the autocorrelation, and $\epsilon \sim \mathbb{N}(0,\sigm
 
 To explore the impact of $\phi$ in generating data, we build a function that simulates a data generating process given values of 
 
-```{r}
+```{r, size = 'small'}
 simulate_ar <- function(n, phi, sigma = .1) {
   y <- rep(0, n)
   

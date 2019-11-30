@@ -48,4 +48,4 @@ Have put together a quick reference table for text formating in markdown. Will a
 |...or from a local directory |\!&#91;Caption&#93;&#40;path&#41;|![Caption](/img/2019-11-25-testlogo.png)|
 |Insert order/unordered lists|\* unordered list <br> 1. Ordered list|*  unordered list <br> 1. Ordered list|
 |Rule break|\*\*\*|this has a *** break|
-|Footnote|A footnote [^1] <br> [^1]: Footnote here|A footnote [^1] <br> [^1]: Footnote here|
+|Footnote|A footnote &#94;[Footnote here]|A footnote ^[Footnote here]|

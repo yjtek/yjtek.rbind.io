@@ -5,8 +5,25 @@ date: '2019-11-30'
 slug: spurious-correlations-and-random-walks
 categories: []
 tags: []
-# draft: false
+draft: true
 ---
+
+<style type="text/css">
+<!-- body, td { -->
+<!--    font-size: 14px; -->
+<!-- } -->
+<!-- code.r{ -->
+<!--   font-size: px; -->
+<!-- } -->
+pre {
+  font-size: 15px
+}
+</style>
+
+```{r, echo = F, include = F}
+library(tidyverse)
+library(gridExtra)
+```
 
 *Reproduced from [Fabian Dablander](https://fabiandablander.com/r/Spurious-Correlation.html)*
 <br>
@@ -14,7 +31,7 @@ tags: []
 
 ### Introduction
 
-This piece will explore the implications of random walk processes in inducing spurious correlations and false positives in hypothesis testing. Why can supposedly independent processes be heavily correlated?
+This piece will explore the implications of random walk processes in inducing spurious correlations and false positives in hypothesis testing. 
 
 Recall that an AR series generally takes the following form:  
 <br>
@@ -28,20 +45,16 @@ where $\phi$ measures the autocorrelation, and $\epsilon \sim \mathbb{N}(0,\sigm
 
 To explore the impact of $\phi$ in generating data, we build a function that simulates a data generating process given values of 
 
-\tiny
 ```{r}
 simulate_ar <- function(n, phi, sigma = .1) {
   y <- rep(0, n)
-  
   for (t in seq(2, n)) {
     y[t] <- phi*y[t-1] + rnorm(1, 0, sigma)
   }
-  
   y
 }
 ```
 
-\normalsize
 where $n$ determines the number of datapoints to generate; $\phi$ is the first order autocorrelation, and $\sigma$ is the variance of the errors in $\epsilon$.
 
 As an example, let's generate 3 AR(1) processes and 3 random walks and chart them. Notice how much better behaved the AR processes are compared to the random walk.
@@ -54,10 +67,26 @@ rw1 <- simulate_ar(n, phi = 1)
 rw2 <- simulate_ar(n, phi = 1)
 rw3 <- simulate_ar(n, phi = 1)
 
-ar <- simulate_ar(n, phi = 0.5)
-ar <- simulate_ar(n, phi = 0.5)
-ar <- simulate_ar(n, phi = 0.5)
+ar1 <- simulate_ar(n, phi = 0.5)
+ar2 <- simulate_ar(n, phi = 0.5)
+ar3 <- simulate_ar(n, phi = 0.5)
 ```
 
+Looking at Figure \@ref(fig:combined), it's clear that the random walk processes are much more erratic than the AR processes ($\phi$ = 0.5). This phenomonon is also called "non-stationarity" in statistical gobbledygook.
 
+```{r combined, fig.cap='AR vs Random Walk', tidy = F, echo = F}
+combinedPlot <- data.frame(
+  Time = rep(seq.int(1,100), 3), 
+  Values = c(ar1, ar2, ar3, rw1, rw2, rw3),
+  Group = rep(c('AR_1', 'AR_2', 'AR_3', 'RW_1', 'RW_2', 'RW_3'), each = 100)
+  ) %>% 
+  mutate(Group = factor(Group))
+
+combinedPlot %>%
+  ggplot(aes(x = Time, y = Values,  colour = `Group`)) + 
+  geom_line() +
+  geom_point() + 
+  theme_classic() + 
+  scale_colour_manual(values = c('#6C6B74', '#2E303E', '#212624', '#F22F08', '#FAAB00', '#2721DB'))
+``` 
 

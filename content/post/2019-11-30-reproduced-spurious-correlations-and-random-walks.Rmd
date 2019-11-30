@@ -1,0 +1,61 @@
+---
+title: '[Reproduced] Spurious Correlations and Random Walks'
+author: yjtek
+date: '2019-11-30'
+slug: spurious-correlations-and-random-walks
+categories: []
+tags: []
+draft: true
+---
+
+*Reproduced from [Fabian Dablander](https://fabiandablander.com/r/Spurious-Correlation.html)*
+<br>
+<br>
+
+#### Introduction
+
+This piece will explore the implications of random walk processes in inducing spurious correlations and false positives in hypothesis testing. Why can supposedly independent processes be heavily correlated?
+
+Recall that an AR series generally takes the following form:  
+<br>
+<center> $Y_{t} = \phi Y_{t-1} + \epsilon_{t}$ --- (1) </center>
+<br>
+where $\phi$ measures the autocorrelation, and $\epsilon \sim \mathbb{N}(0,\sigma^{2})$. Note that a random walk is just a special case of the AR process where $\phi$ = 1.
+<br>
+<br>
+
+#### Simulation
+
+To explore the impact of $\phi$ in generating data, we build a function that simulates a data generating process given values of 
+
+```{r}
+simulate_ar <- function(n, phi, sigma = .1) {
+  y <- rep(0, n)
+  
+  for (t in seq(2, n)) {
+    y[t] <- phi*y[t-1] + rnorm(1, 0, sigma)
+  }
+  
+  y
+}
+```
+
+where $n$ determines the number of datapoints to generate; $\phi$ is the first order autocorrelation, and $\sigma$ is the variance of the errors in $\epsilon$.
+
+As an example, let's generate 3 AR(1) processes and 3 random walks and chart them. Notice how much better behaved the AR processes are compared to the random walk.
+
+```{r}
+n <- 100
+set.seed(1)
+ 
+rw1 <- simulate_ar(n, phi = 1)
+rw2 <- simulate_ar(n, phi = 1)
+rw3 <- simulate_ar(n, phi = 1)
+
+ar <- simulate_ar(n, phi = 0.5)
+ar <- simulate_ar(n, phi = 0.5)
+ar <- simulate_ar(n, phi = 0.5)
+```
+
+
+

@@ -29,6 +29,8 @@ p.caption {
 ```{r, echo = F, include = F}
 library(tidyverse)
 library(gridExtra)
+library(kableExtra)
+options(kableExtra.html.bsTable = T)
 ```
 
 *Reproduced from [Fabian Dablander](https://fabiandablander.com/r/Spurious-Correlation.html)*
@@ -105,12 +107,12 @@ library(kableExtra)
 ```
 
 
-```{r, echo = F, fig.cap = 'Correlation between random walks'}
+```{r, echo = F}
 t1 <- round(cor(cbind(red = rw1, green = rw2, blue = rw3)), 2)
 t2 <- round(cor(cbind(red = ar1, green = ar2, blue = ar3)), 2)
-t1 %>%
-  kable(caption = 'test') %>%
-  kable_styling()
+t1%>%
+  kable(caption = 'AR1 vs Random Walk Correlations') %>%
+  kable_styling(full_width = F)
 #knitr::kable(list(t1, t2), caption = 'test')
 #kable_styling(bootstrap_options = "striped", full_width = F, position = "center")
 ```

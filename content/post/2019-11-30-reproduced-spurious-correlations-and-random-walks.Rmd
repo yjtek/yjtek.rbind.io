@@ -100,7 +100,7 @@ combinedPlot %>%
 
 For one, correlations computed with random walks are unreliable (jargon: spurious). This is clear from the correlation tables below - the correlation between random walk series clearly exceed those seen in the AR1.
 
-```{r, echo = F, results=F}
+```{r, echo = F, results=F, warning=F, message=F}
 library(kableExtra)
 ```
 
@@ -108,8 +108,11 @@ library(kableExtra)
 ```{r, echo = F, fig.cap = 'Correlation between random walks'}
 t1 <- round(cor(cbind(red = rw1, green = rw2, blue = rw3)), 2)
 t2 <- round(cor(cbind(red = ar1, green = ar2, blue = ar3)), 2)
-knitr::kable(list(t1, t2), caption = 'test') %>%
-  kable_styling(bootstrap_options = "striped", full_width = F, position = "center")
+t1 %>%
+  kable(caption = 'test') %>%
+  kable_styling()
+#knitr::kable(list(t1, t2), caption = 'test')
+#kable_styling(bootstrap_options = "striped", full_width = F, position = "center")
 ```
 
 With that said,

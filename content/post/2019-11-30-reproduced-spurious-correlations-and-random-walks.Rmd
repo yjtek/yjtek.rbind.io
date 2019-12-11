@@ -18,6 +18,12 @@ draft: true
 pre {
   font-size: 15px
 }
+p.caption {
+  font-size: 13px;
+  color: grey;
+  font-style: italic;
+  text-align: center;
+}
 </style>
 
 ```{r, echo = F, include = F}
@@ -41,7 +47,7 @@ where $\phi$ measures the autocorrelation, and $\epsilon \sim \mathbb{N}(0,\sigm
 <br>
 <br>
 
-### Simulation
+### Randomness in random walks
 
 To explore the impact of $\phi$ in generating data, we build a function that simulates a data generating process given values of 
 
@@ -72,7 +78,7 @@ ar2 <- simulate_ar(n, phi = 0.5)
 ar3 <- simulate_ar(n, phi = 0.5)
 ```
 
-Looking at Figure \@ref(fig:combined), it's clear that the random walk processes are much more erratic than the AR processes ($\phi$ = 0.5). This phenomonon is also called "non-stationarity" in statistical gobbledygook.
+Looking at Figure \@ref(fig:combined), it's clear that the random walk processes are much more erratic than the AR processes ($\phi$ = 0.5), also called "non-stationary" in statistical gobbledygook.
 
 ```{r combined, fig.cap='AR vs Random Walk', tidy = F, echo = F}
 combinedPlot <- data.frame(
@@ -89,4 +95,25 @@ combinedPlot %>%
   theme_classic() + 
   scale_colour_manual(values = c('#6C6B74', '#2E303E', '#212624', '#F22F08', '#FAAB00', '#2721DB'))
 ``` 
+
+### Why care about this?
+
+For one, correlations computed with random walks are unreliable (jargon: spurious). This is clear from the correlation tables below - the correlation between random walk series clearly exceed those seen in the AR1.
+
+```{r, echo = F, results=F}
+library(kableExtra)
+```
+
+
+```{r, echo = F, fig.cap = 'Correlation between random walks'}
+t1 <- round(cor(cbind(red = rw1, green = rw2, blue = rw3)), 2)
+t2 <- round(cor(cbind(red = ar1, green = ar2, blue = ar3)), 2)
+knitr::kable(list(t1, t2), caption = 'test') %>%
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "center")
+```
+
+With that said,
+
+
+
 

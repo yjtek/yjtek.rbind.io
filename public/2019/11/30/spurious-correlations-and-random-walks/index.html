@@ -73,6 +73,7 @@
 
     <div class="article-content">
       
+<script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
 
 
 <style type="text/css">
@@ -84,6 +85,12 @@
 <!-- } -->
 pre {
   font-size: 15px
+}
+p.caption {
+  font-size: 13px;
+  color: grey;
+  font-style: italic;
+  text-align: center;
 }
 </style>
 <p><em>Reproduced from <a href="https://fabiandablander.com/r/Spurious-Correlation.html">Fabian Dablander</a></em>
@@ -102,8 +109,8 @@ where <span class="math inline">\(\phi\)</span> measures the autocorrelation, an
 <br>
 <br></p>
 </div>
-<div id="simulation" class="section level3">
-<h3>Simulation</h3>
+<div id="randomness-in-random-walks" class="section level3">
+<h3>Randomness in random walks</h3>
 <p>To explore the impact of <span class="math inline">\(\phi\)</span> in generating data, we build a function that simulates a data generating process given values of</p>
 <pre class="r"><code>simulate_ar &lt;- function(n, phi, sigma = .1) {
   y &lt;- rep(0, n)
@@ -124,13 +131,158 @@ rw3 &lt;- simulate_ar(n, phi = 1)
 ar1 &lt;- simulate_ar(n, phi = 0.5)
 ar2 &lt;- simulate_ar(n, phi = 0.5)
 ar3 &lt;- simulate_ar(n, phi = 0.5)</code></pre>
-<p>Looking at Figure <a href="#fig:combined">1</a>, it’s clear that the random walk processes are much more erratic than the AR processes (<span class="math inline">\(\phi\)</span> = 0.5). This phenomonon is also called “non-stationarity” in statistical gobbledygook.</p>
+<p>Looking at Figure <a href="#fig:combined">1</a>, it’s clear that the random walk processes are much more erratic than the AR processes (<span class="math inline">\(\phi\)</span> = 0.5), also called “non-stationary” in statistical gobbledygook.</p>
 <div class="figure"><span id="fig:combined"></span>
 <img src="/post/2019-11-30-reproduced-spurious-correlations-and-random-walks_files/figure-html/combined-1.png" alt="AR vs Random Walk" width="672" />
 <p class="caption">
 Figure 1: AR vs Random Walk
 </p>
 </div>
+</div>
+<div id="why-care-about-this" class="section level3">
+<h3>Why care about this?</h3>
+<p>For one, correlations computed with random walks are unreliable (jargon: spurious). This is clear from the correlation tables below - the correlation between random walk series clearly exceed those seen in the AR1.</p>
+<pre><code>## 
+## Attaching package: &#39;kableExtra&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:dplyr&#39;:
+## 
+##     group_rows</code></pre>
+<table class="kable_wrapper table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:unnamed-chunk-5">Table 1: </span>test
+</caption>
+<tbody>
+<tr>
+<td>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+red
+</th>
+<th style="text-align:right;">
+green
+</th>
+<th style="text-align:right;">
+blue
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+red
+</td>
+<td style="text-align:right;">
+1.00
+</td>
+<td style="text-align:right;">
+-0.49
+</td>
+<td style="text-align:right;">
+-0.29
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+green
+</td>
+<td style="text-align:right;">
+-0.49
+</td>
+<td style="text-align:right;">
+1.00
+</td>
+<td style="text-align:right;">
+0.59
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+blue
+</td>
+<td style="text-align:right;">
+-0.29
+</td>
+<td style="text-align:right;">
+0.59
+</td>
+<td style="text-align:right;">
+1.00
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+<td>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+red
+</th>
+<th style="text-align:right;">
+green
+</th>
+<th style="text-align:right;">
+blue
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+red
+</td>
+<td style="text-align:right;">
+1.00
+</td>
+<td style="text-align:right;">
+-0.06
+</td>
+<td style="text-align:right;">
+-0.03
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+green
+</td>
+<td style="text-align:right;">
+-0.06
+</td>
+<td style="text-align:right;">
+1.00
+</td>
+<td style="text-align:right;">
+0.06
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+blue
+</td>
+<td style="text-align:right;">
+-0.03
+</td>
+<td style="text-align:right;">
+0.06
+</td>
+<td style="text-align:right;">
+1.00
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+<p>With that said,</p>
 </div>
 
     </div>

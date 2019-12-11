@@ -17,10 +17,10 @@
       <pubDate>Sat, 30 Nov 2019 00:00:00 +0000</pubDate>
       
       <guid>/2019/11/30/spurious-correlations-and-random-walks/</guid>
-      <description>pre { font-size: 15px }  Reproduced from Fabian Dablander Introduction This piece will explore the implications of random walk processes in inducing spurious correlations and false positives in hypothesis testing.
+      <description>pre { font-size: 15px } p.caption { font-size: 13px; color: grey; font-style: italic; text-align: center; }  Reproduced from Fabian Dablander Introduction This piece will explore the implications of random walk processes in inducing spurious correlations and false positives in hypothesis testing.
 Recall that an AR series generally takes the following form:
  \(Y_{t} = \phi Y_{t-1} + \epsilon_{t}\) — (1)  
-where \(\phi\) measures the autocorrelation, and \(\epsilon \sim \mathbb{N}(0,\sigma^{2})\). Note that a random walk is just a special case of the AR process where \(\phi\) = 1.</description>
+where \(\phi\) measures the autocorrelation, and \(\epsilon \sim \mathbb{N}(0,\sigma^{2})\).</description>
     </item>
     
     <item>

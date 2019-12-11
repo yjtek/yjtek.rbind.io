@@ -5,7 +5,7 @@ date: '2019-11-30'
 slug: spurious-correlations-and-random-walks
 categories: []
 tags: []
-draft: true
+draft: false
 ---
 
 <style type="text/css">

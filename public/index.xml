@@ -6,18 +6,18 @@
     <description>Recent content on playpen</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sat, 30 Nov 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 12 Dec 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>[Reproduced] Spurious Correlations and Random Walks</title>
-      <link>/2019/11/30/spurious-correlations-and-random-walks/</link>
-      <pubDate>Sat, 30 Nov 2019 00:00:00 +0000</pubDate>
+      <link>/2019/12/12/spurious-correlations-and-random-walks/</link>
+      <pubDate>Thu, 12 Dec 2019 00:00:00 +0000</pubDate>
       
-      <guid>/2019/11/30/spurious-correlations-and-random-walks/</guid>
-      <description>pre { font-size: 15px } p.caption { font-size: 13px; color: grey; font-style: italic; text-align: center; }  Reproduced from Fabian Dablander Introduction This piece will explore the implications of random walk processes in inducing spurious correlations and false positives in hypothesis testing.
+      <guid>/2019/12/12/spurious-correlations-and-random-walks/</guid>
+      <description>pre { font-size: 15px } p.caption { font-size: 13px; color: grey; font-style: italic; text-align: center; }  Reproduced from Fabian Dablander Introduction This short post will explore the implications of random walk processes in inducing spurious correlations and false positives in hypothesis testing.
 Recall that an AR series generally takes the following form:
  \(Y_{t} = \phi Y_{t-1} + \epsilon_{t}\) — (1)  
 where \(\phi\) measures the autocorrelation, and \(\epsilon \sim \mathbb{N}(0,\sigma^{2})\).</description>

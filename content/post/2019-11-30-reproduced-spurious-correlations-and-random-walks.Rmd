@@ -1,7 +1,7 @@
 ---
 title: '[Reproduced] Spurious Correlations and Random Walks'
 author: yjtek
-date: '2019-11-30'
+date: '2019-12-12'
 slug: spurious-correlations-and-random-walks
 categories: []
 tags: []
@@ -39,7 +39,7 @@ options(kableExtra.html.bsTable = T)
 
 ### Introduction
 
-This piece will explore the implications of random walk processes in inducing spurious correlations and false positives in hypothesis testing. 
+This short post will explore the implications of random walk processes in inducing spurious correlations and false positives in hypothesis testing. 
 
 Recall that an AR series generally takes the following form:  
 <br>
@@ -49,7 +49,7 @@ where $\phi$ measures the autocorrelation, and $\epsilon \sim \mathbb{N}(0,\sigm
 <br>
 <br>
 
-### Randomness in random walks
+### The randomness in random walks
 
 To explore the impact of $\phi$ in generating data, we build a function that simulates a data generating process given values of 
 
@@ -98,27 +98,217 @@ combinedPlot %>%
   scale_colour_manual(values = c('#6C6B74', '#2E303E', '#212624', '#F22F08', '#FAAB00', '#2721DB'))
 ``` 
 
-### Why care about this?
+### Why should anyone care about this?
 
-For one, correlations computed with random walks are unreliable (jargon: spurious). This is clear from the correlation tables below - the correlation between random walk series clearly exceed those seen in the AR1.
+For one, randomness means that any correlations computed with random walks are unreliable (jargon: spurious). This is clear from the correlation tables below - the correlation between random walk series clearly exceed those seen in the AR1.
 
 ```{r, echo = F, results=F, warning=F, message=F}
 library(kableExtra)
 ```
 
-
 ```{r, echo = F}
 t1 <- round(cor(cbind(red = rw1, green = rw2, blue = rw3)), 2)
 t2 <- round(cor(cbind(red = ar1, green = ar2, blue = ar3)), 2)
-t1%>%
-  kable(caption = 'AR1 vs Random Walk Correlations') %>%
-  kable_styling(full_width = F)
-#knitr::kable(list(t1, t2), caption = 'test')
-#kable_styling(bootstrap_options = "striped", full_width = F, position = "center")
+t1 %>%
+  kable(caption = 'Random Walk Corr') %>%
+  kable_styling(bootstrap_options = "striped", full_width = F, position = "center")
 ```
 
-With that said,
+```{r, echo = F}
+t2 %>%
+    kable(caption = 'AR1 Corr') %>%
+    kable_styling(bootstrap_options = "striped", full_width = F, position = "center")
+```
+
+This means that when you're doing any sort of time series comparison (say, you're day trading and you find an awesome correlation that you can't wait to arbitrage), you might find it hard to be sure if the correlation you're seeing is real, or just 2 random walks being chummy.
+
+### How is actual hypothesis testing affected?
+
+First, we test the effect of different time-series lengths on the validity of the hypothesis test. By simulating 100 draws each of 2 random walks with 50/100/200/500/1000/2000 observations, we compute the average correlation, average tstat, and average proportion of the 100 observations that pass the significance test at some fixed significance level (5% in this case).
+
+```{r}
+set.seed(1)
+ 
+times <- 100 #number of times you want to simulate the corr between the ARs
+ns <- c(50, 100, 200, 500, 1000, 2000) #number of observations for each AR process
+ 
+comb <- expand.grid(times = seq(times), n = ns)
+
+res <- matrix(NA, nrow = nrow(comb), ncol = 5)
+colnames(res) <- c('ix', 'n', 'cor', 'tstat', 'pval')
+
+for (i in seq(nrow(comb))){
+  n <- comb[i, 2]
+  ix <- comb[i, 1]
+  test <- cor.test(simulate_ar(n, phi = 1), simulate_ar(n, phi = 1))
+  res[i, ] <- c(ix, n, test$estimate, test$statistic, test$p.value)
+}
+ 
+tab <- data.frame(res) %>% 
+  group_by(n) %>% 
+  summarize(
+    avg_abs_corr = mean(abs(cor)),
+    avg_abs_tstat = mean(abs(tstat)),
+    percent_sig = mean(pval < .05)
+  ) %>% data.frame
+ 
+round(tab, 2)
+```
+
+While the average random walk correlation basically stays the same regardless of the length of the time series, notice how the average t-stat increases, and a larger and larger proportion of your t-tests comes back significanct (97% at 2000 obs!!) **despite the fact that these were 2 random walk series!**
+
+Instead of using the standardised coefficient, let's convert this to an equivalent but more commonly encountered form.^[Note that the regression coefficient is NOT the same as the  simple correlation. Recall that in a $y = \alpha + \beta x + \epsilon$ setting, $\beta = cor(x,y)\cdot \frac{SD(y)}{SD(x)}$] What happens when we try to draw conclusions using $\beta_{1}$ from the regression $ts_{0} = \alpha + \beta_{1} \ast ts_{1} + \epsilon$ where $ts_{0}$ and $ts_{1}$ are 2 random walks?
+
+```{r, echo = T, results = 'hide', include = F}
+# Simulate 2 ARs and find the regression coef between them
+regress_ar <- function(n, phi, sigma){
+  y <- simulate_ar(n, phi, sigma)
+  x <- simulate_ar(n, phi, sigma)
+  return(coef(summary(lm(y ~ x)))[2, c(1, 2, 3)])
+}
+ 
+bootstrap_limit <- function(ns, phi, sigma, times = 200) {
+  #Create empty matrix that records 3 values; simulation index n, regression coefficient, and 
+  #t-stat of regression coef
+  res <- matrix(NA, nrow = times * length(ns), ncol = 4)
+  colnames(res) <- c('n', 'b1', 'std.error', 'tstat')
+ 
+  ix <- 1
+  for (n in ns) { #Looping across the 6 series lengths
+    for (i in seq(times)) { #Generate `times` number of runs for each series length
+      coefs <- regress_ar(n, phi, sigma)
+      res[ix, ] <- c(n, coefs)
+      ix <- ix + 1
+    }
+  }
+  return(data.frame(res))
+}
+ 
+set.seed(1)
+ns <- c(100, 200, 500, 1000, 2000)
+res_ar <- bootstrap_limit(ns, .5, .1)
+res_rw <- bootstrap_limit(ns,  1, .1)
+```
+
+```{r betas, fig.cap='Betas: AR vs Random Walk', tidy = F, echo = F, results = 'hide'}
+## Chart for beta
+# t1 <- res_ar %>%
+#   ggplot(aes(x = factor(n), y = b1)) +
+#   geom_boxplot(outlier.shape = NA) +
+#   theme_classic() +
+#   ggtitle('B1 of AR with different lengths')
+# 
+# t2 <- res_rw %>%
+#   ggplot(aes(x = factor(n), y = b1)) +
+#   geom_boxplot(outlier.shape = NA) +
+#   theme_classic() +
+#   ggtitle('B1 of random walks with different lengths')
+# 
+# ggpubr::ggarrange(t1, t2)
+
+## Chart for t-stat
+# t1 <- res_ar %>%
+#   mutate(std.error.dividedSampleSize = std.error/sqrt(n)) %>%
+#   ggplot(aes(x = factor(n), y = std.error.dividedSampleSize)) +
+#   geom_boxplot(outlier.shape = NA) +
+#   theme_classic() +
+#   ggtitle('std.error/sqrt(n) of B1 (AR) with different lengths') +
+#   theme(plot.title = element_text(size = 11))
+# 
+# t2 <- res_rw %>%
+#   mutate(std.error.dividedSampleSize = std.error/sqrt(n)) %>%
+#   ggplot(aes(x = factor(n), y = std.error.dividedSampleSize)) +
+#   geom_boxplot(outlier.shape = NA) +
+#   theme_classic() +
+#   ggtitle('std.error/sqrt(n) of B1 (random walk) with different lengths') +
+#   theme(plot.title = element_text(size = 11))
+# 
+# ggpubr::ggarrange(t1, t2)
+
+## Chart for t-stat
+# t1 <- res_ar %>%
+#   ggplot(aes(x = factor(n), y = tstat)) +
+#   geom_boxplot(outlier.shape = NA) +
+#   theme_classic() +
+#   ggtitle('t-stat of B1 (AR) with different lengths')
+# 
+# t2 <- res_rw %>%
+#   ggplot(aes(x = factor(n), y = tstat)) +
+#   geom_boxplot(outlier.shape = NA) +
+#   theme_classic() +
+#   ggtitle('t-stat of B1 (random walk) with different lengths')
+# 
+# ggpubr::ggarrange(t1, t2)
+
+```
+
+![Fig 2: t-stat of AR vs RW Betas over various series lengths](/post/2019-11-30-reproduced-spurious-correlations-and-random-walks_files/Rplot02.png){width=92% height=92%}    
+
+It should be quite clear from the figure above that something weird occurs when the usual regression is done on a random walk! Compared to the AR(1) process, the t-statistic for $\beta$ term in the random walk regression blows up as the series length increases! This isn't the most intuitive result, so let's do a bit more digging for the culprit. Recall that the test statistic used here is $t = Z/s = \frac{\overline{X} - \mu}{\hat{\sigma}/\sqrt{n}}$. 
+
+![Fig 3: AR vs RW betas over various series lengths](/post/2019-11-30-reproduced-spurious-correlations-and-random-walks_files/Rplot.png){width=92% height=92%}  
+
+It's clear that the issues lies with the difference in the $\beta$ estimate as the length of the series increases. On the left, the $\beta$ estimate for the AR converges as the series length increases. Intuitively, your distribution becomes narrower with more observations since your unbiased mean converges to the true population mean. This is not the case with the random walk; the distribution of the $\beta$ term stays constant regardless of observation length.
+
+![AR vs RW std.errors/sqrt(n) over various series lengths](/post/2019-11-30-reproduced-spurious-correlations-and-random-walks_files/Rplot03.png){width=88% height=88%}  
+
+Mitigating this, the $\hat{\sigma}/\sqrt n$of the mean does not decrease to the same extent for the random walk. Nonetheless, the effect on the $\beta$ coefficient estimate dominates.
+
+Overall, the conclusion from this is that hypothesis tests on random walk regressions will almost definitely bias your results horrendously, and to make things worse, the problem is worse with more data.
+
+### Conclusion: t-test for random walk processes will give you many false rejections of the null! 
+
+Does this mean that ALL time series regressions are susceptible to this problem? Well yes, but the extent differs. The nearer your AR term is to a random walk, the more this becomes a problem.
+
+```{r, echo = F}
+set.seed(1)
+ 
+n <- 200
+times <- 100
+phis <- seq(0, 1, .01)
+comb <- expand.grid(times = seq(times), n = n, phis)
+ncomb <- nrow(comb)
+ 
+res <- matrix(NA, nrow = ncomb, ncol = 6)
+colnames(res) <- c('ix', 'n', 'phi', 'cor', 'tstat', 'pval')
+ 
+for (i in seq(ncomb)) {
+  ix <- comb[i, 1]
+  n <- comb[i, 2]
+  phi <- comb[i, 3]
+  
+  test <- cor.test(simulate_ar(n, phi = phi), simulate_ar(n, phi = phi))
+  res[i, ] <- c(ix, n, phi, test$estimate, test$statistic, test$p.value)
+}
+ 
+dat <- data.frame(res) %>% 
+  group_by(phi) %>% 
+  summarize(
+    avg_abs_corr = mean(abs(cor)),
+    avg_abs_tstat = mean(abs(tstat)),
+    percent_sig = mean(pval < .05)
+  )
+
+dat %>%
+  ggplot(aes(x = phi, y = avg_abs_corr)) +
+  geom_point()
+```
+
+As your AR coefficient nears 1, the abs correlation between different series increases in **magnitude**...
 
 
+```{r, echo = F}
+dat %>%
+  ggplot(aes(x = phi, y = avg_abs_tstat)) +
+  geom_point()
+```
 
+...and also in **t-stat**...
 
+```{r, echo = F}
+dat %>%
+  ggplot(aes(x = phi, y = percent_sig)) +
+  geom_point()
+```
+
+...leading to a much larger proportion of false positives!

@@ -62,7 +62,7 @@
 
   <article class="article">
     
-    <span class="article-duration">2 min read</span>
+    <span class="article-duration">5 min read</span>
     
 
     <h1 class="article-title">[Reproduced] Spurious Correlations and Random Walks</h1>
@@ -99,7 +99,7 @@ p.caption {
 <br></p>
 <div id="introduction" class="section level3">
 <h3>Introduction</h3>
-<p>This piece will explore the implications of random walk processes in inducing spurious correlations and false positives in hypothesis testing.</p>
+<p>This short post will explore the implications of random walk processes in inducing spurious correlations and false positives in hypothesis testing.</p>
 Recall that an AR series generally takes the following form:<br />
 <br>
 <center>
@@ -110,8 +110,8 @@ where <span class="math inline">\(\phi\)</span> measures the autocorrelation, an
 <br>
 <br></p>
 </div>
-<div id="randomness-in-random-walks" class="section level3">
-<h3>Randomness in random walks</h3>
+<div id="the-randomness-in-random-walks" class="section level3">
+<h3>The randomness in random walks</h3>
 <p>To explore the impact of <span class="math inline">\(\phi\)</span> in generating data, we build a function that simulates a data generating process given values of</p>
 <pre class="r"><code>simulate_ar &lt;- function(n, phi, sigma = .1) {
   y &lt;- rep(0, n)
@@ -140,12 +140,12 @@ Figure 1: AR vs Random Walk
 </p>
 </div>
 </div>
-<div id="why-care-about-this" class="section level3">
-<h3>Why care about this?</h3>
-<p>For one, correlations computed with random walks are unreliable (jargon: spurious). This is clear from the correlation tables below - the correlation between random walk series clearly exceed those seen in the AR1.</p>
-<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<div id="why-should-anyone-care-about-this" class="section level3">
+<h3>Why should anyone care about this?</h3>
+<p>For one, randomness means that any correlations computed with random walks are unreliable (jargon: spurious). This is clear from the correlation tables below - the correlation between random walk series clearly exceed those seen in the AR1.</p>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
-<span id="tab:unnamed-chunk-5">Table 1: </span>AR1 vs Random Walk Correlations
+<span id="tab:unnamed-chunk-5">Table 1: </span>Random Walk Corr
 </caption>
 <thead>
 <tr>
@@ -207,7 +207,142 @@ blue
 </tr>
 </tbody>
 </table>
-<p>With that said,</p>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:unnamed-chunk-6">Table 2: </span>AR1 Corr
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+red
+</th>
+<th style="text-align:right;">
+green
+</th>
+<th style="text-align:right;">
+blue
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+red
+</td>
+<td style="text-align:right;">
+1.00
+</td>
+<td style="text-align:right;">
+-0.06
+</td>
+<td style="text-align:right;">
+-0.03
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+green
+</td>
+<td style="text-align:right;">
+-0.06
+</td>
+<td style="text-align:right;">
+1.00
+</td>
+<td style="text-align:right;">
+0.06
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+blue
+</td>
+<td style="text-align:right;">
+-0.03
+</td>
+<td style="text-align:right;">
+0.06
+</td>
+<td style="text-align:right;">
+1.00
+</td>
+</tr>
+</tbody>
+</table>
+<p>This means that when you’re doing any sort of time series comparison (say, you’re day trading and you find an awesome correlation that you can’t wait to arbitrage), you might find it hard to be sure if the correlation you’re seeing is real, or just 2 random walks being chummy.</p>
+</div>
+<div id="how-is-actual-hypothesis-testing-affected" class="section level3">
+<h3>How is actual hypothesis testing affected?</h3>
+<p>First, we test the effect of different time-series lengths on the validity of the hypothesis test. By simulating 100 draws each of 2 random walks with 50/100/200/500/1000/2000 observations, we compute the average correlation, average tstat, and average proportion of the 100 observations that pass the significance test at some fixed significance level (5% in this case).</p>
+<pre class="r"><code>set.seed(1)
+ 
+times &lt;- 100 #number of times you want to simulate the corr between the ARs
+ns &lt;- c(50, 100, 200, 500, 1000, 2000) #number of observations for each AR process
+ 
+comb &lt;- expand.grid(times = seq(times), n = ns)
+
+res &lt;- matrix(NA, nrow = nrow(comb), ncol = 5)
+colnames(res) &lt;- c(&#39;ix&#39;, &#39;n&#39;, &#39;cor&#39;, &#39;tstat&#39;, &#39;pval&#39;)
+
+for (i in seq(nrow(comb))){
+  n &lt;- comb[i, 2]
+  ix &lt;- comb[i, 1]
+  test &lt;- cor.test(simulate_ar(n, phi = 1), simulate_ar(n, phi = 1))
+  res[i, ] &lt;- c(ix, n, test$estimate, test$statistic, test$p.value)
+}
+ 
+tab &lt;- data.frame(res) %&gt;% 
+  group_by(n) %&gt;% 
+  summarize(
+    avg_abs_corr = mean(abs(cor)),
+    avg_abs_tstat = mean(abs(tstat)),
+    percent_sig = mean(pval &lt; .05)
+  ) %&gt;% data.frame
+ 
+round(tab, 2)</code></pre>
+<pre><code>##      n avg_abs_corr avg_abs_tstat percent_sig
+## 1   50         0.41          3.57        0.71
+## 2  100         0.46          6.58        0.85
+## 3  200         0.45          8.88        0.85
+## 4  500         0.37         10.63        0.86
+## 5 1000         0.41         17.05        0.88
+## 6 2000         0.39         23.39        0.97</code></pre>
+<p>While the average random walk correlation basically stays the same regardless of the length of the time series, notice how the average t-stat increases, and a larger and larger proportion of your t-tests comes back significanct (97% at 2000 obs!!) <strong>despite the fact that these were 2 random walk series!</strong></p>
+<p>Instead of using the standardised coefficient, let’s convert this to an equivalent but more commonly encountered form.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> What happens when we try to draw conclusions using <span class="math inline">\(\beta_{1}\)</span> from the regression <span class="math inline">\(ts_{0} = \alpha + \beta_{1} \ast ts_{1} + \epsilon\)</span> where <span class="math inline">\(ts_{0}\)</span> and <span class="math inline">\(ts_{1}\)</span> are 2 random walks?</p>
+<div class="figure">
+<img src="/post/2019-11-30-reproduced-spurious-correlations-and-random-walks_files/Rplot02.png" alt="Fig 2: t-stat of AR vs RW Betas over various series lengths" style="width:92.0%;height:92.0%" />
+<p class="caption">Fig 2: t-stat of AR vs RW Betas over various series lengths</p>
+</div>
+<p>It should be quite clear from the figure above that something weird occurs when the usual regression is done on a random walk! Compared to the AR(1) process, the t-statistic for <span class="math inline">\(\beta\)</span> term in the random walk regression blows up as the series length increases! This isn’t the most intuitive result, so let’s do a bit more digging for the culprit. Recall that the test statistic used here is <span class="math inline">\(t = Z/s = \frac{\overline{X} - \mu}{\hat{\sigma}/\sqrt{n}}\)</span>.</p>
+<div class="figure">
+<img src="/post/2019-11-30-reproduced-spurious-correlations-and-random-walks_files/Rplot.png" alt="Fig 3: AR vs RW betas over various series lengths" style="width:92.0%;height:92.0%" />
+<p class="caption">Fig 3: AR vs RW betas over various series lengths</p>
+</div>
+<p>It’s clear that the issues lies with the difference in the <span class="math inline">\(\beta\)</span> estimate as the length of the series increases. On the left, the <span class="math inline">\(\beta\)</span> estimate for the AR converges as the series length increases. Intuitively, your distribution becomes narrower with more observations since your unbiased mean converges to the true population mean. This is not the case with the random walk; the distribution of the <span class="math inline">\(\beta\)</span> term stays constant regardless of observation length.</p>
+<div class="figure">
+<img src="/post/2019-11-30-reproduced-spurious-correlations-and-random-walks_files/Rplot03.png" alt="AR vs RW std.errors/sqrt(n) over various series lengths" style="width:88.0%;height:88.0%" />
+<p class="caption">AR vs RW std.errors/sqrt(n) over various series lengths</p>
+</div>
+<p>Mitigating this, the <span class="math inline">\(\hat{\sigma}/\sqrt n\)</span>of the mean does not decrease to the same extent for the random walk. Nonetheless, the effect on the <span class="math inline">\(\beta\)</span> coefficient estimate dominates.</p>
+<p>Overall, the conclusion from this is that hypothesis tests on random walk regressions will almost definitely bias your results horrendously, and to make things worse, the problem is worse with more data.</p>
+</div>
+<div id="conclusion-t-test-for-random-walk-processes-will-give-you-many-false-rejections-of-the-null" class="section level3">
+<h3>Conclusion: t-test for random walk processes will give you many false rejections of the null!</h3>
+<p>Does this mean that ALL time series regressions are susceptible to this problem? Well yes, but the extent differs. The nearer your AR term is to a random walk, the more this becomes a problem.</p>
+<p><img src="/post/2019-11-30-reproduced-spurious-correlations-and-random-walks_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p>As your AR coefficient nears 1, the abs correlation between different series increases in <strong>magnitude</strong>…</p>
+<p><img src="/post/2019-11-30-reproduced-spurious-correlations-and-random-walks_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>…and also in <strong>t-stat</strong>…</p>
+<p><img src="/post/2019-11-30-reproduced-spurious-correlations-and-random-walks_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p>…leading to a much larger proportion of false positives!</p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>Note that the regression coefficient is NOT the same as the simple correlation. Recall that in a <span class="math inline">\(y = \alpha + \beta x + \epsilon\)</span> setting, <span class="math inline">\(\beta = cor(x,y)\cdot \frac{SD(y)}{SD(x)}\)</span><a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
 </div>
 
     </div>

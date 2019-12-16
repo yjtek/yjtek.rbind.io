@@ -6,10 +6,20 @@
     <description>Recent content on playpen</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 12 Dec 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 16 Dec 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>[Adapted] Best Pokemon Team</title>
+      <link>/2019/12/16/reproduced-best-pokemon-team/</link>
+      <pubDate>Mon, 16 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/12/16/reproduced-best-pokemon-team/</guid>
+      <description>pre { font-size: 15px } p.caption { font-size: 13px; color: grey; font-style: italic; text-align: center; }  Adapted from Emily Robinson. Data from robinsones. Introduction Came across this fairly interesting blog post recently. Given that there are 18 types of pokemon, some of which are super-effective/not very effective against each other, how do we get a pokemon team combination that is super effective against most other teams?
+## Attacking Normal Fire Water Electric Grass Ice Fighting Poison Ground Flying ## 1 Normal 1 1.</description>
+    </item>
     
     <item>
       <title>[Reproduced] Spurious Correlations and Random Walks</title>

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.59.1" />
+
+
+<title>[Adapted] Best Pokemon Team - playpen</title>
+<meta property="og:title" content="[Adapted] Best Pokemon Team - playpen">
+
+
+  <link href='/favicon.ico' rel='icon' type='image/x-icon'/>
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/yjtek">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/tekyongjian">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">7 min read</span>
+    
+
+    <h1 class="article-title">[Adapted] Best Pokemon Team</h1>
+
+    
+    <span class="article-date">2019-12-16</span>
+    
+
+    <div class="article-content">
+      
+
+
+<style type="text/css">
+<!-- body, td { -->
+<!--    font-size: 14px; -->
+<!-- } -->
+<!-- code.r{ -->
+<!--   font-size: px; -->
+<!-- } -->
+pre {
+  font-size: 15px
+}
+p.caption {
+  font-size: 13px;
+  color: grey;
+  font-style: italic;
+  text-align: center;
+}
+</style>
+<p><em>Adapted from <a href="https://hookedondata.org/pokemon-type-combinations/">Emily Robinson</a>. Data from <a href="https://github.com/robinsones/pokemon-chart/blob/master/chart.csv">robinsones</a>.</em>
+<br>
+<br></p>
+<div id="introduction" class="section level3">
+<h3>Introduction</h3>
+<p>Came across this fairly interesting blog post recently. Given that there are 18 types of pokemon, some of which are super-effective/not very effective against each other, how do we get a pokemon team combination that is super effective against most other teams?</p>
+<pre><code>##   Attacking Normal Fire Water Electric Grass Ice Fighting Poison Ground Flying
+## 1    Normal      1  1.0   1.0      1.0   1.0 1.0        1    1.0      1    1.0
+## 2      Fire      1  0.5   0.5      1.0   2.0 2.0        1    1.0      1    1.0
+## 3     Water      1  2.0   0.5      1.0   0.5 1.0        1    1.0      2    1.0
+## 4  Electric      1  1.0   2.0      0.5   0.5 1.0        1    1.0      0    2.0
+## 5     Grass      1  0.5   2.0      1.0   0.5 1.0        1    0.5      2    0.5
+## 6       Ice      1  0.5   0.5      1.0   2.0 0.5        1    1.0      2    2.0
+##   Psychic Bug Rock Ghost Dragon Dark Steel Fairy
+## 1       1 1.0  0.5     0    1.0    1   0.5     1
+## 2       1 2.0  0.5     1    0.5    1   2.0     1
+## 3       1 1.0  2.0     1    0.5    1   1.0     1
+## 4       1 1.0  1.0     1    0.5    1   1.0     1
+## 5       1 0.5  2.0     1    0.5    1   0.5     1
+## 6       1 1.0  1.0     1    2.0    1   0.5     1</code></pre>
+<p>We take in a base dataset showing the effects from each 18*18 attack/defence pair. 0.5 indicates a not very effective attack, 1 indicates a normal attack, and 2 indicates a super effective attack.</p>
+</div>
+<div id="basic-analysis" class="section level3">
+<h3>Basic analysis</h3>
+<p>We can already draw some basic aggregate conclusions about the most useful types by maximising the attack dealt and minimising the attack received.</p>
+<pre class="r"><code>mostUsefulAttack &lt;- data.frame(type = chart$Attacking, `Attack Dealt` = rowSums(chart[,2:ncol(chart)]))
+mostUsefulDefence &lt;- data.frame(type = colnames(chart)[2:ncol(chart)], `Attack Received` = colSums(chart[, 2:ncol(chart)]))
+mostUseful &lt;- mostUsefulAttack %&gt;% left_join(mostUsefulDefence, by = &#39;type&#39;)
+mostUseful</code></pre>
+<pre><code>##        type Attack.Dealt Attack.Received
+## 1    Normal         16.0            18.0
+## 2      Fire         20.0            18.0
+## 3     Water         19.5            18.0
+## 4  Electric         17.5            17.5
+## 5     Grass         17.5            21.0
+## 6       Ice         20.0            21.5
+## 7  Fighting         19.5            19.5
+## 8    Poison         17.0            17.5
+## 9    Ground         21.0            19.0
+## 10   Flying         19.5            18.5
+## 11  Psychic         18.0            20.0
+## 12      Bug         17.5            19.5
+## 13     Rock         20.5            21.0
+## 14    Ghost         18.5            17.0
+## 15   Dragon         17.5            19.0
+## 16     Dark         18.5            19.0
+## 17    Steel         19.0            15.0
+## 18    Fairy         19.5            17.5</code></pre>
+<p>The baseline for both scores is 18 (i.e. you deal normal damage to all other types, and take normal damage from all other types). A cursory analysis will already tell us which types are most useful. If we are willing to ignore the distribution of the scores, we can simply find all types where attack dealt exceeds the baseline, and the attack received is below the baseline.</p>
+<pre class="r"><code>mostUseful %&gt;%
+  filter(Attack.Dealt &gt;= 18 &amp; Attack.Received &lt;= 18)</code></pre>
+<pre><code>##    type Attack.Dealt Attack.Received
+## 1  Fire         20.0            18.0
+## 2 Water         19.5            18.0
+## 3 Ghost         18.5            17.0
+## 4 Steel         19.0            15.0
+## 5 Fairy         19.5            17.5</code></pre>
+</div>
+<div id="maximising-super-effectiveness" class="section level3">
+<h3>Maximising super-effectiveness</h3>
+<p>As marvellous as that sounds, we clearly don’t fight pokemon in some weird aggregated group fight. Pokemon fights are a 1v1 affair, and it follows that the analysis should be conducted at the type pair level. Using <a href="https://hookedondata.org/pokemon-type-combinations/">Emily Robinson’s</a> work, we sharpen the granularity of the analysis to see which types provide the most “super effective” attacks.</p>
+<pre class="r"><code>chartLong &lt;- chart %&gt;%
+  pivot_longer(-Attacking, names_to = &#39;Defending&#39;, values_to = &#39;Attack Effectiveness&#39;) %&gt;%
+  mutate(`Attack Effectiveness` = if_else(`Attack Effectiveness` == 2, 1, 0)) %&gt;%
+  group_by(Attacking) %&gt;%
+  summarise(`Count Attack Super Effective` = sum(`Attack Effectiveness`)) %&gt;%
+  arrange(desc(`Count Attack Super Effective`))
+head(chartLong)</code></pre>
+<pre><code>## # A tibble: 6 x 2
+##   Attacking `Count Attack Super Effective`
+##   &lt;fct&gt;                              &lt;dbl&gt;
+## 1 Fighting                               5
+## 2 Ground                                 5
+## 3 Fire                                   4
+## 4 Ice                                    4
+## 5 Rock                                   4
+## 6 Bug                                    3</code></pre>
+<p>To form the best combination of 6, and lacking some sort of prior about what that combination should be, we rely on good old fashioned brute forcing. Using <code>combn()</code>, we get a dataframe where every column is 1 combination.</p>
+<pre class="r"><code>combinations &lt;- combn(18,6)
+dim(combinations)</code></pre>
+<pre><code>## [1]     6 18564</code></pre>
+<p>Using the base dataframe, we change the values such that super effective attacks are reflected as 1s in the matrix, and everything else is reflected as 0.</p>
+<pre class="r"><code>m &lt;- as.matrix(chart[, -1])
+rownames(m) &lt;- chart$Attacking
+super_effective_m &lt;- (m == 2) * 1L
+head(super_effective_m)</code></pre>
+<pre><code>##          Normal Fire Water Electric Grass Ice Fighting Poison Ground Flying
+## Normal        0    0     0        0     0   0        0      0      0      0
+## Fire          0    0     0        0     1   1        0      0      0      0
+## Water         0    1     0        0     0   0        0      0      1      0
+## Electric      0    0     1        0     0   0        0      0      0      1
+## Grass         0    0     1        0     0   0        0      0      1      0
+## Ice           0    0     0        0     1   0        0      0      1      1
+##          Psychic Bug Rock Ghost Dragon Dark Steel Fairy
+## Normal         0   0    0     0      0    0     0     0
+## Fire           0   1    0     0      0    0     1     0
+## Water          0   0    1     0      0    0     0     0
+## Electric       0   0    0     0      0    0     0     0
+## Grass          0   0    1     0      0    0     0     0
+## Ice            0   0    0     0      1    0     0     0</code></pre>
+<p>Now we have an 18x18 matrix with 1s where attacks are super effective, a 6x18564 matrix of possible combinations of 6 pokemon teams.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>. To work with this, we define a function that takes in each combination of pokemon types (every row of <code>combination</code>), and sums the number of types the combination is super effective against.</p>
+<pre class="r"><code>super_effective_nb &lt;- function(indices){
+  #for each pokemon group (6-row-subset of super_effective_m), take the column sum for each of the 18 columns. If colSums &gt; 0, then there is at least 1 of the 6 types that is super effective, so count this as a 1. Sum all types your group is super effective against.
+  sum(colSums(super_effective_m[indices, ]) &gt; 0)
+}
+super_effective_results &lt;- apply(combinations, 2, super_effective_nb)
+best_combos &lt;- combinations[, super_effective_results == max(super_effective_results)]
+strongest_teams &lt;- matrix(rownames(super_effective_m)[best_combos], nrow = 6)
+strongest_teams %&gt;%
+  data.frame() %&gt;%
+  mutate(count = 1:6) %&gt;%
+  pivot_longer(-count, names_to = &#39;group&#39;, values_to = &#39;type&#39;) %&gt;%
+  select(-count) %&gt;%
+  group_by(type) %&gt;%
+  summarise(count = length(unique(group))) %&gt;%
+  arrange(desc(count))</code></pre>
+<pre><code>## # A tibble: 12 x 2
+##    type     count
+##    &lt;fct&gt;    &lt;int&gt;
+##  1 Ground      10
+##  2 Fighting     8
+##  3 Flying       8
+##  4 Ice          8
+##  5 Ghost        5
+##  6 Dark         5
+##  7 Grass        4
+##  8 Poison       4
+##  9 Electric     2
+## 10 Fairy        2
+## 11 Rock         2
+## 12 Steel        2</code></pre>
+<p>We can now see the pokemon types that are needed for the maximum possible super-effective team combination. (you cannot run away from having a ground type)</p>
+</div>
+<div id="equilibrium" class="section level3">
+<h3>Equilibrium</h3>
+<p>Let’s assume this whole exercise is correct up to this point (ignore distribution of super-effective attacks, super-effective attacks worth 4x normal attacks, etc.). If we assume that this “optimal” response will be played, is the Nash equilibrium to reply with this? response as well? For illustration, I will just use the first group identified</p>
+<pre class="r"><code># Picking one of 10 the strongest combinations:
+strongestTeamIndex &lt;- unique(row(super_effective_m)[rownames(super_effective_m) %in% strongest_teams[,1]])
+super_effective_m[,strongestTeamIndex]</code></pre>
+<pre><code>##          Electric Ice Fighting Ground Flying Ghost
+## Normal          0   0        0      0      0     0
+## Fire            0   1        0      0      0     0
+## Water           0   0        0      1      0     0
+## Electric        0   0        0      0      1     0
+## Grass           0   0        0      1      0     0
+## Ice             0   0        0      1      1     0
+## Fighting        0   1        0      0      0     0
+## Poison          0   0        0      0      0     0
+## Ground          1   0        0      0      0     0
+## Flying          0   0        1      0      0     0
+## Psychic         0   0        1      0      0     0
+## Bug             0   0        0      0      0     0
+## Rock            0   1        0      0      1     0
+## Ghost           0   0        0      0      0     1
+## Dragon          0   0        0      0      0     0
+## Dark            0   0        0      0      0     1
+## Steel           0   1        0      0      0     0
+## Fairy           0   0        1      0      0     0</code></pre>
+<pre class="r"><code>super_effective_nb_subset &lt;- function(indices){
+    sum(colSums(super_effective_m[indices, strongestTeamIndex]) &gt; 0)
+}
+super_effective_results_subset &lt;- apply(combinations, 2, super_effective_nb_subset)
+best_combos_subset &lt;- combinations[, super_effective_results_subset == max(super_effective_results_subset)]
+dim(best_combos_subset)</code></pre>
+<pre><code>## [1]   6 396</code></pre>
+<p>Clearly, when you have a fixed team of only 6 to counter, there are a lot more possible “optimal” combinations. The point is to see if you have the optimal 10 among the 396 combinations identified.</p>
+<pre class="r"><code>subset &lt;- t(best_combos_subset) %&gt;%
+  as.data.frame() %&gt;%
+  unite(&#39;string&#39;, V1:V6)
+optimal &lt;- t(best_combos) %&gt;%
+  as.data.frame() %&gt;%
+  unite(&#39;string&#39;, V1:V6)
+  
+optimal$string %in% subset$string</code></pre>
+<pre><code>##  [1] TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE TRUE</code></pre>
+<p>All 10 appear in the subset! Which suggests that, ceteris paribus, it is always better to choose among the 10 optimal strategies identified above that maximise super effective attacks when responding to a <code>c(Electric, Ice, Fighting, Ground, Flying, Ghost)</code> team.</p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><span class="math inline">\(\frac{18!}{12! \cdot 6!} = 18564\)</span><a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</div>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" alt="Img link to Hugo website" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+<script src="/js/math-code.js"></script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+    
+  </body>
+</html>
+

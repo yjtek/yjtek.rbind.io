@@ -6,10 +6,19 @@
     <description>Recent content on playpen</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 16 Dec 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 15 Feb 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>MCMC</title>
+      <link>/2020/02/15/markov-chain-monte-carlo/</link>
+      <pubDate>Sat, 15 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/02/15/markov-chain-monte-carlo/</guid>
+      <description>Paper: Ravenzwaaij, D. V., Cassey, P., &amp;amp; Brown, S. D. (2016). A simple introduction to Markov Chain Monte–Carlo sampling. Psychonomic Bulletin &amp;amp; Review, 25(1), 143–154. doi: 10.3758/s13423-016-1015-8 I’ve been meaning to do an intro to MCMC piece for a while now, but have unfortunately been held back by a crippling ignorance of how MCMC actually works beyond broad brush strokes gained from ny semi-understanding if the original dense papers.</description>
+    </item>
     
     <item>
       <title>[Adapted] Best Pokemon Team</title>

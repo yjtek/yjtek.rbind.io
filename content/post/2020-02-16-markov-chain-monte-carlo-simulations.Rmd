@@ -1,5 +1,5 @@
 ---
-title: Markov Chain Monte Carlo (MCMC) Simulations 
+title: Markov Chain Monte Carlo (MCMC) Simulations
 author: yjtek
 date: '2020-02-16'
 slug: markov-chain-monte-carlo-simulations
@@ -199,11 +199,11 @@ mu_frequentist_multiDim <- as.data.frame(x = metropolis_algo_multiDim(student_re
   mutate(status_mu = if_else(accepted_mu == proposed_mu, 'Accepted', 'Rejected'),
          status_sigma = if_else(accepted_sigma == proposed_sigma, 'Accepted', 'Rejected')) %>%
   mutate(startingPoint = 'Frequentist')
-mu_colleague_multiDim <- as.data.frame(x = metropolis_algo(student_results, 55, proposed_sigma = 5, niter = niter)) %>%
+mu_colleague_multiDim <- as.data.frame(x = metropolis_algo_multiDim(student_results, 55, proposed_sigma = 5, niter = niter)) %>%
     mutate(status_mu = if_else(accepted_mu == proposed_mu, 'Accepted', 'Rejected'),
            status_sigma = if_else(accepted_sigma == proposed_sigma, 'Accepted', 'Rejected')) %>%
   mutate(startingPoint = 'Colleague')
-mu_optimist_multiDim <- as.data.frame(x = metropolis_algo(student_results, 90, proposed_sigma = 50, niter = niter)) %>%
+mu_optimist_multiDim <- as.data.frame(x = metropolis_algo_multiDim(student_results, 90, proposed_sigma = 50, niter = niter)) %>%
     mutate(status_mu = if_else(accepted_mu == proposed_mu, 'Accepted', 'Rejected'),
            status_sigma = if_else(accepted_sigma == proposed_sigma, 'Accepted', 'Rejected')) %>%
   mutate(startingPoint = 'Optimist')
@@ -235,7 +235,7 @@ Once agian, we see that the MCMC returns something very close to the underlying 
 
 ```{r, echo = F, return = F}
 niter = 100000
-mu_optimist_multiDim <- as.data.frame(x = metropolis_algo(student_results, 90, proposed_sigma = 50, niter = niter)) %>%
+mu_optimist_multiDim <- as.data.frame(x = metropolis_algo_multiDim(student_results, 90, proposed_sigma = 50, niter = niter)) %>%
     mutate(status_mu = if_else(accepted_mu == proposed_mu, 'Accepted', 'Rejected'),
            status_sigma = if_else(accepted_sigma == proposed_sigma, 'Accepted', 'Rejected')) %>%
   mutate(startingPoint = 'Optimist')

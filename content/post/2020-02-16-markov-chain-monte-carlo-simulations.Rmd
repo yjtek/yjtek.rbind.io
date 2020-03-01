@@ -58,7 +58,8 @@ Let's assume, however, that you're told by another teacher that these students a
  
 But put yourself in this situation. Would you really be confident enough to disregard your colleague's opinion on the basis of **1** test? What if your test results were a fluke? In a Bayesian framework, rather than choosing between your results and your colleague's opinion, you can combine both pieces of information to update what you believe to be the true value of $\mu$. This is where the Metropolis algorithm comes in.
 
-The Metropolis Algorithm is summarised below:
+The Metropolis Algorithm is summarised below: <br>
+
 1. Give your best guess for the parameter(s) of interest (in this case, $\mu$). Call it $\mu_0$
 2. Compute the likelihood $L_0$ of the parameter(s) being $\mu_0$ conditional on the data you observe, $P(\mu_0 | Data)$. By Bayes' rule, this is equal to $\frac{P(Data | \mu_0) \cdotp P(\mu_0)}{P(Data)}$.
 3. Add a random perturbation to your parameter, and call is $\mu_1$

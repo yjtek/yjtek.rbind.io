@@ -99,15 +99,21 @@
 <p>What do you make of these results? First, you could very clearly say something about your students on <em>average</em>. Your mean score is 71.2, for example, so that’s already a sensible starting point for you to assess your students’ ability.</p>
 <p>Let’s assume, however, that you’re told by another teacher that these students are complete idiots. He was really adamant that the average class scores can’t be anything higher than <span class="math inline">\(\mu = 55\)</span>, so you can’t help but be swayed. How should you reconcile this with the set of test results you just received? In a frequentist world, you’d probably disregard the information provided by your colleague, and accept wholly that your students are probably around a 71.2.</p>
 <p>But put yourself in this situation. Would you really be confident enough to disregard your colleague’s opinion on the basis of <strong>1</strong> test? What if your test results were a fluke? In a Bayesian framework, rather than choosing between your results and your colleague’s opinion, you can combine both pieces of information to update what you believe to be the true value of <span class="math inline">\(\mu\)</span>. This is where the Metropolis algorithm comes in.</p>
-<p>The Metropolis Algorithm is summarised below:
-1. Give your best guess for the parameter(s) of interest (in this case, <span class="math inline">\(\mu\)</span>). Call it <span class="math inline">\(\mu_0\)</span>
-2. Compute the likelihood <span class="math inline">\(L_0\)</span> of the parameter(s) being <span class="math inline">\(\mu_0\)</span> conditional on the data you observe, <span class="math inline">\(P(\mu_0 | Data)\)</span>. By Bayes’ rule, this is equal to <span class="math inline">\(\frac{P(Data | \mu_0) \cdotp P(\mu_0)}{P(Data)}\)</span>.
-3. Add a random perturbation to your parameter, and call is <span class="math inline">\(\mu_1\)</span>
-4. Again, compute the likelihood <span class="math inline">\(L_1\)</span> of the parameter(s) being <span class="math inline">\(\mu_1\)</span> conditional on the data you observe, <span class="math inline">\(P(\mu_1 | Data)\)</span>
-5. Compare the likelihood scores of hyperparameters given the data.
-a. If <span class="math inline">\(L_1\)</span> &gt; <span class="math inline">\(L_0\)</span>, <span class="math inline">\(\mu_1\)</span> becomes your best guess
-b. If <span class="math inline">\(L_1\)</span> &lt;= <span class="math inline">\(L_0\)</span>, <span class="math inline">\(\mu_1\)</span> is chosen with probability <span class="math inline">\(L_1 / L_2\)</span>
-6. Repeat from step 1 for a given number of iterations</p>
+<p>The Metropolis Algorithm is summarised below: <br></p>
+<ol style="list-style-type: decimal">
+<li>Give your best guess for the parameter(s) of interest (in this case, <span class="math inline">\(\mu\)</span>). Call it <span class="math inline">\(\mu_0\)</span></li>
+<li>Compute the likelihood <span class="math inline">\(L_0\)</span> of the parameter(s) being <span class="math inline">\(\mu_0\)</span> conditional on the data you observe, <span class="math inline">\(P(\mu_0 | Data)\)</span>. By Bayes’ rule, this is equal to <span class="math inline">\(\frac{P(Data | \mu_0) \cdotp P(\mu_0)}{P(Data)}\)</span>.</li>
+<li>Add a random perturbation to your parameter, and call is <span class="math inline">\(\mu_1\)</span></li>
+<li>Again, compute the likelihood <span class="math inline">\(L_1\)</span> of the parameter(s) being <span class="math inline">\(\mu_1\)</span> conditional on the data you observe, <span class="math inline">\(P(\mu_1 | Data)\)</span></li>
+<li>Compare the likelihood scores of hyperparameters given the data.</li>
+</ol>
+<ol style="list-style-type: lower-alpha">
+<li>If <span class="math inline">\(L_1\)</span> &gt; <span class="math inline">\(L_0\)</span>, <span class="math inline">\(\mu_1\)</span> becomes your best guess</li>
+<li>If <span class="math inline">\(L_1\)</span> &lt;= <span class="math inline">\(L_0\)</span>, <span class="math inline">\(\mu_1\)</span> is chosen with probability <span class="math inline">\(L_1 / L_2\)</span></li>
+</ol>
+<ol start="6" style="list-style-type: decimal">
+<li>Repeat from step 1 for a given number of iterations</li>
+</ol>
 <pre class="r"><code>metropolis_algo &lt;- function(data, proposed_mu, niter = 500){
   mu_vector = c(proposed_mu)
   new_mu = c(proposed_mu)

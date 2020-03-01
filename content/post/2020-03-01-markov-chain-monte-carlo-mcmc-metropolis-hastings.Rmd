@@ -259,5 +259,3 @@ mu_optimist_multiDim %>%
 ### Conclusion
 
 This post discussed the basics of MCMC, as well as the implementation of the Metropolis Hastings algorithm in both the one dimensional and multidimensional cases. In the next series, I will discuss the implementation of Gibbs Sampling and Differential Evolution and why these represent an improvement to the Metropolis Hastings algorithm in some situations.
-
-

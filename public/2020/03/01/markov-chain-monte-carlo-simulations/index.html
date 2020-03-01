@@ -95,7 +95,7 @@
 <p>Suppose you’re a new teacher assigned to a class of 30 students whose test scores <span class="math inline">\(t\)</span> are normally distributed <span class="math inline">\(t \sim N(70, 15)\)</span>. Since you’re new, however, you don’t actually know this. All you know is that the students’ scores are normally distributed, and since they are relatively similar in ability, their test scores have variance <span class="math inline">\(\sigma^2 = 15\)</span>.</p>
 <p>Being a principled educator, you want to know tailor your lesson plan to your students, which means that you need to get an estimate of <span class="math inline">\(\mu\)</span>. Well, a simple way to get this information is simply to test your students. This is analagous to the earlier example of dropping dots in the 1x1 square; you are sampling from an unknown distribution to derive some information about the underlying data process.</p>
 <pre><code>## Warning: Ignoring unknown parameters: text</code></pre>
-<p><img src="/post/2020-02-16-markov-chain-monte-carlo-simulations_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p><img src="/post/2020-03-01-markov-chain-monte-carlo-mcmc-metropolis-hastings_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
 <p>What do you make of these results? First, you could very clearly say something about your students on <em>average</em>. Your mean score is 71.2, for example, so that’s already a sensible starting point for you to assess your students’ ability.</p>
 <p>Let’s assume, however, that you’re told by another teacher that these students are complete idiots. He was really adamant that the average class scores can’t be anything higher than <span class="math inline">\(\mu = 55\)</span>, so you can’t help but be swayed. How should you reconcile this with the set of test results you just received? In a frequentist world, you’d probably disregard the information provided by your colleague, and accept wholly that your students are probably around a 71.2.</p>
 <p>But put yourself in this situation. Would you really be confident enough to disregard your colleague’s opinion on the basis of <strong>1</strong> test? What if your test results were a fluke? In a Bayesian framework, rather than choosing between your results and your colleague’s opinion, you can combine both pieces of information to update what you believe to be the true value of <span class="math inline">\(\mu\)</span>. This is where the Metropolis algorithm comes in.</p>
@@ -157,9 +157,9 @@ mu_optimist &lt;- as.data.frame(x = metropolis_algo(student_results, 90, niter =
   mutate(status = if_else(accepted_mu == proposed_mu, &#39;Accepted&#39;, &#39;Rejected&#39;)) %&gt;%
   mutate(startingPoint = &#39;Optimist&#39;)</code></pre>
 <p>Notice how the next proposed value is wholly dependent on the previous proposed value? This is the Markov Chain property that provides half the “MC” in MCMC. Let’s observe what happens to your beliefs about <span class="math inline">\(\mu_0\)</span> as you run this algorithm:</p>
-<p><img src="/post/2020-02-16-markov-chain-monte-carlo-simulations_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p><img src="/post/2020-03-01-markov-chain-monte-carlo-mcmc-metropolis-hastings_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 <p>Notice how, if your starting points are off, the algorithm takes some time to correct! We usually deal with this by discarding the first few values of the MCMC (where few is up to you to define). This practise is known as “burn in”. The above showed us the path that our “accepted” values took, what about showing both acceptance and rejections? Let’s take the update path under the “Optimist” view as an example:</p>
-<p><img src="/post/2020-02-16-markov-chain-monte-carlo-simulations_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p><img src="/post/2020-03-01-markov-chain-monte-carlo-mcmc-metropolis-hastings_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
 <p>We can see how the proposed_mu values bounces around, but the accepted values are largely bounded between 65 and 80, almost like a “confidence interval” of sorts.</p>
 </div>
 <div id="multi-dimensional-mcmc" class="section level3">
@@ -213,10 +213,10 @@ mu_optimist_multiDim &lt;- as.data.frame(x = metropolis_algo_multiDim(student_re
     mutate(status_mu = if_else(accepted_mu == proposed_mu, &#39;Accepted&#39;, &#39;Rejected&#39;),
            status_sigma = if_else(accepted_sigma == proposed_sigma, &#39;Accepted&#39;, &#39;Rejected&#39;)) %&gt;%
   mutate(startingPoint = &#39;Optimist&#39;)</code></pre>
-<p><img src="/post/2020-02-16-markov-chain-monte-carlo-simulations_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
-<p><img src="/post/2020-02-16-markov-chain-monte-carlo-simulations_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p><img src="/post/2020-03-01-markov-chain-monte-carlo-mcmc-metropolis-hastings_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p><img src="/post/2020-03-01-markov-chain-monte-carlo-mcmc-metropolis-hastings_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 <p>Once agian, we see that the MCMC returns something very close to the underlying distribution <span class="math inline">\(t \sim N(70, 15)\)</span>! Again, if we use the “Optimist” assumption and run this for a large number of iterations, we see the following heat map showing that most of our accepted values are around the <span class="math inline">\(N(\mu = 70, \sigma^2 = 15)\)</span> region</p>
-<p><img src="/post/2020-02-16-markov-chain-monte-carlo-simulations_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p><img src="/post/2020-03-01-markov-chain-monte-carlo-mcmc-metropolis-hastings_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
 </div>
 <div id="conclusion" class="section level3">
 <h3>Conclusion</h3>

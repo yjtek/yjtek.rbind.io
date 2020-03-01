@@ -105,13 +105,11 @@
 <li>Compute the likelihood <span class="math inline">\(L_0\)</span> of the parameter(s) being <span class="math inline">\(\mu_0\)</span> conditional on the data you observe, <span class="math inline">\(P(\mu_0 | Data)\)</span>. By Bayes’ rule, this is equal to <span class="math inline">\(\frac{P(Data | \mu_0) \cdotp P(\mu_0)}{P(Data)}\)</span>.</li>
 <li>Add a random perturbation to your parameter, and call is <span class="math inline">\(\mu_1\)</span></li>
 <li>Again, compute the likelihood <span class="math inline">\(L_1\)</span> of the parameter(s) being <span class="math inline">\(\mu_1\)</span> conditional on the data you observe, <span class="math inline">\(P(\mu_1 | Data)\)</span></li>
-<li>Compare the likelihood scores of hyperparameters given the data.</li>
-</ol>
+<li>Compare the likelihood scores of hyperparameters given the data.
 <ol style="list-style-type: lower-alpha">
 <li>If <span class="math inline">\(L_1\)</span> &gt; <span class="math inline">\(L_0\)</span>, <span class="math inline">\(\mu_1\)</span> becomes your best guess</li>
 <li>If <span class="math inline">\(L_1\)</span> &lt;= <span class="math inline">\(L_0\)</span>, <span class="math inline">\(\mu_1\)</span> is chosen with probability <span class="math inline">\(L_1 / L_2\)</span></li>
-</ol>
-<ol start="6" style="list-style-type: decimal">
+</ol></li>
 <li>Repeat from step 1 for a given number of iterations</li>
 </ol>
 <pre class="r"><code>metropolis_algo &lt;- function(data, proposed_mu, niter = 500){

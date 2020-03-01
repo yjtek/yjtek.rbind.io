@@ -65,8 +65,8 @@ The Metropolis Algorithm is summarised below: <br>
 3. Add a random perturbation to your parameter, and call is $\mu_1$
 4. Again, compute the likelihood $L_1$ of the parameter(s) being $\mu_1$ conditional on the data you observe, $P(\mu_1 | Data)$
 5. Compare the likelihood scores of hyperparameters given the data. 
-  a. If $L_1$ > $L_0$, $\mu_1$ becomes your best guess
-  b. If $L_1$ <= $L_0$, $\mu_1$ is chosen with probability $L_1 / L_2$
+    a. If $L_1$ > $L_0$, $\mu_1$ becomes your best guess
+    b. If $L_1$ <= $L_0$, $\mu_1$ is chosen with probability $L_1 / L_2$
 6. Repeat from step 1 for a given number of iterations
 
 ```{r, echo = T, return = F}

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.59.1" />
+
+
+<title>Markov Chain Monte Carlo (MCMC) Simulations - playpen</title>
+<meta property="og:title" content="Markov Chain Monte Carlo (MCMC) Simulations - playpen">
+
+
+  <link href='/favicon.ico' rel='icon' type='image/x-icon'/>
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/yjtek">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/tekyongjian">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">7 min read</span>
+    
+
+    <h1 class="article-title">Markov Chain Monte Carlo (MCMC) Simulations</h1>
+
+    
+    <span class="article-date">2020-02-16</span>
+    
+
+    <div class="article-content">
+      
+
+
+<p><em>Based on “A simple introduction to Markov Chain Monte–Carlo sampling” by <a href="https://link.springer.com/content/pdf/10.3758%2Fs13423-016-1015-8.pdf">Ravenzwaaij et al.</a>:</em></p>
+<p>I’ve been meaning to do a proper introduction to MCMC piece for a while now, but a crippling ignorance of how MCMC actually works has thus far stymied me. So this paper by Ravenwaaij et al. has pretty much been a god-send. I’m building up towards a piece experimenting with Kay Brodersen’s <code>CausalImpact</code> package, so will be an intermediate signpost on that journey.</p>
+<p>In this post, I will cover the basics of MCMC, and its 3 most common algorithms – (i) Metropolis, (ii) Gibbs Sampling, and (iii) Differential Evolution</p>
+<div id="introduction" class="section level3">
+<h3>Introduction</h3>
+<p>Imagine we want want to know the area of a circle embedded in a 1x1 square, but in this alternate universe, we have no clue that the area of a circle can be computed analytically by applying <span class="math inline">\(\pi r^2\)</span>. Is there another way we can estimate this?</p>
+<p><img src="/post/2020-02-16-markov-chain-monte-carlo-simulations_files/2020-mcmc-Circle-inscribed-in-a-square%20(dots).jpg" /></p>
+<p>Well as it turns out, we can do it quite simply! All we have to do to estimate the circle’s area is to drop points within this 1x1 grid randomly, and visually inspect the proportion of points falling inside the circle to approximate the circle’s area. In the case above, 70% of the points fall within the circle, so our estimate is 0.7cm<sup>2</sup>. This isn’t far at all from the true value of 0.785cm<sup>2</sup>, and you can imagine that our approximation gets better the more points we drop in.</p>
+<p>In a nutshell, what we’ve just done is a Monte Carlo simulation. That is, by drawing <strong>random points within a given space (square)</strong>, we approximate the density of an unknown distribution (circle). The example provided above is in 2 dimensions, but you can see how this idea of randomly dropping points into an unknown distribution generalises quite easily to arbitrarily complex geometries.</p>
+</div>
+<div id="thats-great-but-why-should-we-ever-care-about-this" class="section level3">
+<h3>That’s great, but why should we ever care about this?</h3>
+<p>As far as statistical problems are concerned, a huge amount of time and energy is spent finding distributions that have no real analytical solution (none that we can understand anyway). A simple problem is choosing hyperparameters in statistical distributions.</p>
+<p>Suppose you have set of data, and you’re told that this data is drawn from a gamma distribution of some unknown parameters <span class="math inline">\(k\)</span> and <span class="math inline">\(\theta\)</span>. It’s clearly important to understand your underlying data generating process, so you can account for it properly in whatever outcome you want to model.</p>
+<p>One way to do this is simply to take repeated samples of your dataset, and analytically compute the likelihood score for the sample until you converge on some set of <span class="math inline">\(k\)</span> and <span class="math inline">\(\theta\)</span>, bringing us right back to Monte Carlo methods.</p>
+</div>
+<div id="mcmc---metropolis-algorithm" class="section level3">
+<h3>MCMC - Metropolis Algorithm</h3>
+<p>The Metropolis algorithm is a useful starting point to understand how MCMC works. This section follows the example provided in the paper cited above completely.</p>
+<p>Suppose you’re a teacher, and you want to learn the mean test score in your student population. Assume you know that the scores follow a normal distribution, with a standard deviation of 15. So far, you’ve only seen 1 student’s test score (75/100). We can now apply MCMC to derive the mean test score in the student population!</p>
+<p>Let’s start from your information that one student has a score of 75. Now 75 alone isn’t much information, but we know the 75 value must have been drawn from the true distribution of scores from the distribution <span class="math inline">\(N(\mu, \sigma = 15)\)</span>.</p>
+<p>We can now use MCMC to derive a plausible guess for <span class="math inline">\(\mu\)</span>! First, we make a new guess (say 80 – you have a prior believe that the class averages an A). We then use MCMC to derive a chain of new guesses by making ‘proposals’, which are either accepted, or rejected. This iteratively continues for a pre-specified number of runs, and should ultimately converge to some number. Let’s see it in code!</p>
+<pre class="r"><code>metropolis_algo &lt;- function(first_value, proposed_mu, niter = 500){
+  mu_vector = c(proposed_mu)
+  for(i in 1:niter){ #do x runs
+  proposal_draw = rnorm(1, 0 ,5)# We define an arbitrary proposal mechanism; in this case, you draw from a normal distribution with mean 0 and sd 5
+  
+  # Compare the earlier proposal value for mu with the new. 
+  candidate1 = dnorm(first_value, proposed_mu, 15)
+  candidate2 = dnorm(first_value, proposed_mu + proposal_draw, 15)
+  
+  # If new proposed value gives you a higher chance of observing first_value, accept it. Otherwise, accept new proposal with probability proportionate to how much lower the posterior is compared to the original proposal. This prevents getting stuck in local maxima.
+  if(candidate2 &gt; candidate1){
+    proposed_mu = proposed_mu + proposal_draw
+  } else {
+    accept_probability = candidate2/candidate1
+    random_draw = runif(1, 0, 1)
+    if(random_draw &lt;= accept_probability){
+      proposed_mu = proposed_mu + proposal_draw
+    }
+  }
+  
+  # Store each winning proposal to a vector
+  mu_vector = c(mu_vector, proposed_mu)
+  }
+  return(mu_vector)
+}
+
+niter = 300
+mu_nearby &lt;- as.data.frame(x = metropolis_algo(75, 80, niter = niter)) %&gt;%
+  `colnames&lt;-`(c(&#39;mu_nearby&#39;))
+mu_middle &lt;- as.data.frame(x = metropolis_algo(75, 150, niter = niter)) %&gt;%
+  `colnames&lt;-`(c(&#39;mu_middle&#39;))
+mu_far &lt;- as.data.frame(x = metropolis_algo(75, 500, niter = niter)) %&gt;%
+  `colnames&lt;-`(c(&#39;mu_far&#39;))</code></pre>
+<p>And now, observing it in practise.</p>
+<p><img src="/post/2020-02-16-markov-chain-monte-carlo-simulations_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p><img src="/post/2020-02-16-markov-chain-monte-carlo-simulations_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>Right away, it’s clear why MCMC methods require us to discard the first few values – if we start too far away from the “correct’ value, convergence takes <em>much</em> longer. This practise is known as”burn in".</p>
+</div>
+<div id="mcmc---gibbs-sampling" class="section level3">
+<h3>MCMC - Gibbs Sampling</h3>
+<p>While the Metropolis algorithm<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> example above is a good illustration of a 1 dimensional MCMC problem, most problems in real life aren’t actually 1-dimensional. In english, that means that you’re more likely to be deducing both the mean <span class="math inline">\(\mu\)</span> <strong>and</strong> standard deviation <span class="math inline">\(\sigma\)</span> at the same time.</p>
+<p>In these cases, drawing samples is tricky. If we draw a random value of <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span> simultaneously each time, the accept-reject process might break down if the parameters are correlated. This is because we’re taking both samples independently of each other, so it’s not clear if convergence will occur optimally. Let’s see what happens when we take joint draws of <span class="math inline">\((\mu, \sigma)\)</span>. We first adapt our <code>metropolis_algo()</code> function defined above.</p>
+<pre class="r"><code>metropolis_algo_joint &lt;- function(first_value_mu, first_value_sigma, proposed_mu, proposed_sigma, niter = 500){
+  mu_vector = c(proposed_mu)
+  sigma_vector = c(proposed_sigma)
+  
+  for(i in 1:niter){ #do x runs
+  proposal_draw_mu = rnorm(1, 0, 5)
+  proposal_draw_sigma = rnorm(1, 0, 1)
+  
+  # Compare the earlier proposal value for mu with the new. 
+  candidate1 = dnorm(first_value_mu, proposed_mu, proposed_sigma)
+  candidate2 = dnorm(first_value_mu, proposed_mu + proposal_draw_mu, proposed_sigma + proposal_draw_sigma)
+  
+  # If new proposed value gives you a higher chance of observing first_value, accept it. Otherwise, accept new proposal with probability proportionate to how much lower the posterior is compared to the original proposal. This prevents getting stuck in local maxima.
+  if(candidate2 &gt; candidate1){
+    proposed_mu = proposed_mu + proposal_draw_mu
+    proposed_sigma = proposed_sigma + proposal_draw_sigma
+  } else {
+    accept_probability = candidate2/candidate1
+    random_draw = runif(1, 0, 1)
+    if(random_draw &lt;= accept_probability){
+      proposed_mu = proposed_mu + proposal_draw_mu
+      proposed_sigma = proposed_sigma + proposal_draw_sigma
+    }
+  }
+  
+  # Store each winning proposal to a vector
+  mu_vector = c(mu_vector, proposed_mu)
+  sigma_vector = c(sigma_vector, proposed_sigma)
+  }
+  
+  temp = data.frame(timestamp = 1:(niter+1), mu = mu_vector, sigma = sigma_vector)
+  return(temp)
+}</code></pre>
+<p><img src="/post/2020-02-16-markov-chain-monte-carlo-simulations_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>Safe to say, our toy example doesn’t really appear to converge correctly when <span class="math inline">\((\mu, \sigma)\)</span> are drawn jointly, with the final values appearing to land in the <span class="math inline">\((\mu ~ 100, \sigma ~ 45)\)</span> region.</p>
+<p>The answer to this, as you might suspect, is Gibbs samplings. Rather than taking multiple draws over the joint distribution of the parameters of interest, the great insight of Gibbs sampling is that it is much more sensible to take draws from the <strong>condition</strong> distribution instead. In this way, you guarantee that your random draws account for correlations between the parameters in question. Again, in english, this means that you perform the accept-reject algorithm iteratively on each parameter, alternating between both! So for each draw, you effectively hold all other parameters constant.</p>
+<p>Does this really make such a big difference? Yes! Again, adapting the code from above:</p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>The Metropolis algorithm and Metropolis-Hastings algorithm are similar, with the only difference that Metropolis-Hastings relaxes the assumption that the proposal sampler has to be symmetric. I ignore this complication here since this doesn’t really affect a basic understanding of how MCMC works.<a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</div>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" alt="Img link to Hugo website" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+<script src="/js/math-code.js"></script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+    
+  </body>
+</html>
+

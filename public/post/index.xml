@@ -6,17 +6,17 @@
     <description>Recent content in Posts on playpen</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 16 Feb 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 01 Mar 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>Markov Chain Monte Carlo (MCMC) Simulations</title>
-      <link>/2020/02/16/markov-chain-monte-carlo-simulations/</link>
-      <pubDate>Sun, 16 Feb 2020 00:00:00 +0000</pubDate>
+      <title>Markov Chain Monte Carlo (MCMC) Simulations - Metropolis Hastings</title>
+      <link>/2020/03/01/markov-chain-monte-carlo-simulations/</link>
+      <pubDate>Sun, 01 Mar 2020 00:00:00 +0000</pubDate>
       
-      <guid>/2020/02/16/markov-chain-monte-carlo-simulations/</guid>
+      <guid>/2020/03/01/markov-chain-monte-carlo-simulations/</guid>
       <description>Based on “A simple introduction to Markov Chain Monte–Carlo sampling” by Ravenzwaaij et al.:
 I’ve been meaning to do a proper introduction to MCMC piece for a while now, but a crippling ignorance of how MCMC actually works has thus far stymied me. So this paper by Ravenwaaij et al. has pretty much been a god-send. I’m building up towards a piece experimenting with Kay Brodersen’s CausalImpact package, so will be an intermediate signpost on that journey.</description>
     </item>

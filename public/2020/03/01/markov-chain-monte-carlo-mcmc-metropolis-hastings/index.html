@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.59.1" />
+
+
+<title>Markov Chain Monte Carlo (MCMC) - Metropolis Hastings - playpen</title>
+<meta property="og:title" content="Markov Chain Monte Carlo (MCMC) - Metropolis Hastings - playpen">
+
+
+  <link href='/favicon.ico' rel='icon' type='image/x-icon'/>
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/yjtek">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/tekyongjian">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">9 min read</span>
+    
+
+    <h1 class="article-title">Markov Chain Monte Carlo (MCMC) - Metropolis Hastings</h1>
+
+    
+    <span class="article-date">2020-03-01</span>
+    
+
+    <div class="article-content">
+      
+
+
+<p><em>Based on “A simple introduction to Markov Chain Monte–Carlo sampling” by <a href="https://link.springer.com/content/pdf/10.3758%2Fs13423-016-1015-8.pdf">Ravenzwaaij et al.</a>:</em></p>
+<p>I’ve been meaning to do a proper introduction to MCMC piece for a while now, but a crippling ignorance of how MCMC actually works has thus far stymied me. So this paper by Ravenwaaij et al. has pretty much been a god-send. I’m building up towards a piece experimenting with Kay Brodersen’s <code>CausalImpact</code> package, so will be an intermediate signpost on that journey.</p>
+<p>In this post, I will walk through the basics of MCMC, and cover one of the most common implementations - Metropolis Hastings.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
+<div id="introduction" class="section level3">
+<h3>Introduction</h3>
+<p>Imagine we want want to know the area of a circle embedded in a 1x1 square, but in this alternate universe, we have no clue that the area of a circle can be computed analytically by applying <span class="math inline">\(\pi r^2\)</span>. Is there another way we can estimate this? Well as it turns out, we can do it quite simply! All we have to do to estimate the circle’s area is to drop points within this 1x1 grid randomly. By counting the proportion of points falling inside the circle, we can approximate the circle’s area.</p>
+<p><img src="/post/2020-02-16-markov-chain-monte-carlo-simulations_files/2020-mcmc-Circle-inscribed-in-a-square%20(dots).jpg" /></p>
+<p>In the case above, 70% of the points fall within the circle, giving us an estimate that the circle is 0.7cm<sup>2</sup>. This isn’t far at all from the true value of 0.785cm<sup>2</sup>, and you can imagine that our approximation gets better the more points we drop in.</p>
+<p>In a nutshell, what we’ve just done is a Monte Carlo simulation. That is, by drawing <strong>random points within a given space (square)</strong>, we approximate the density of an <strong>unknown distribution (circle)</strong>. The example provided above is in 2 dimensions, but you can see how this idea of randomly dropping points into an unknown distribution generalises quite easily to arbitrarily complex geometries.</p>
+</div>
+<div id="great-but-why-do-i-care" class="section level3">
+<h3>Great, but why do I care?</h3>
+<p>Well for a huge amount of data problems, distributions tend not to be known in advance, or tend to be unsolvable by hand even if they are known. As you can imagine, if you’re trying to make some decision based on an unknown distribution (say, deciding on hyperparameters in an an unknown space), this might be a tad frustrating. The beauty of Monte Carlo methods is that they allow you to make these decisions without having to know the specifics of the underlying distribution.</p>
+</div>
+<div id="mcmc---metropolis-algorithm" class="section level3">
+<h3>MCMC - Metropolis Algorithm</h3>
+<p>One example of how this idea is implemented is the Metropolis algorithm. This section follows the example provided in the Ravenzwaaij paper cited above almost completely.</p>
+<p>Suppose you’re a new teacher assigned to a class of 30 students whose test scores <span class="math inline">\(t\)</span> are normally distributed <span class="math inline">\(t \sim N(70, 15)\)</span>. Since you’re new, however, you don’t actually know this. All you know is that the students’ scores are normally distributed, and since they are relatively similar in ability, their test scores have variance <span class="math inline">\(\sigma^2 = 15\)</span>.</p>
+<p>Being a principled educator, you want to know tailor your lesson plan to your students, which means that you need to get an estimate of <span class="math inline">\(\mu\)</span>. Well, a simple way to get this information is simply to test your students. This is analagous to the earlier example of dropping dots in the 1x1 square; you are sampling from an unknown distribution to derive some information about the underlying data process.</p>
+<pre><code>## Warning: Ignoring unknown parameters: text</code></pre>
+<p><img src="/post/2020-03-01-markov-chain-monte-carlo-mcmc-metropolis-hastings_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>What do you make of these results? First, you could very clearly say something about your students on <em>average</em>. Your mean score is 71.2, for example, so that’s already a sensible starting point for you to assess your students’ ability.</p>
+<p>Let’s assume, however, that you’re told by another teacher that these students are complete idiots. He was really adamant that the average class scores can’t be anything higher than <span class="math inline">\(\mu = 55\)</span>, so you can’t help but be swayed. How should you reconcile this with the set of test results you just received? In a frequentist world, you’d probably disregard the information provided by your colleague, and accept wholly that your students are probably around a 71.2.</p>
+<p>But put yourself in this situation. Would you really be confident enough to disregard your colleague’s opinion on the basis of <strong>1</strong> test? What if your test results were a fluke? In a Bayesian framework, rather than choosing between your results and your colleague’s opinion, you can combine both pieces of information to update what you believe to be the true value of <span class="math inline">\(\mu\)</span>. This is where the Metropolis algorithm comes in.</p>
+<p>The Metropolis Algorithm is summarised below: <br></p>
+<ol style="list-style-type: decimal">
+<li>Give your best guess for the parameter(s) of interest (in this case, <span class="math inline">\(\mu\)</span>). Call it <span class="math inline">\(\mu_0\)</span></li>
+<li>Compute the likelihood <span class="math inline">\(L_0\)</span> of the parameter(s) being <span class="math inline">\(\mu_0\)</span> conditional on the data you observe, <span class="math inline">\(P(\mu_0 | Data)\)</span>. By Bayes’ rule, this is equal to <span class="math inline">\(\frac{P(Data | \mu_0) \cdotp P(\mu_0)}{P(Data)}\)</span>.</li>
+<li>Add a random perturbation to your parameter, and call is <span class="math inline">\(\mu_1\)</span></li>
+<li>Again, compute the likelihood <span class="math inline">\(L_1\)</span> of the parameter(s) being <span class="math inline">\(\mu_1\)</span> conditional on the data you observe, <span class="math inline">\(P(\mu_1 | Data)\)</span></li>
+<li>Compare the likelihood scores of hyperparameters given the data.
+<ol style="list-style-type: lower-alpha">
+<li>If <span class="math inline">\(L_1\)</span> &gt; <span class="math inline">\(L_0\)</span>, <span class="math inline">\(\mu_1\)</span> becomes your best guess</li>
+<li>If <span class="math inline">\(L_1\)</span> &lt;= <span class="math inline">\(L_0\)</span>, <span class="math inline">\(\mu_1\)</span> is chosen with probability <span class="math inline">\(L_1 / L_2\)</span></li>
+</ol></li>
+<li>Repeat from step 1 for a given number of iterations</li>
+</ol>
+<pre class="r"><code>metropolis_algo &lt;- function(data, proposed_mu, niter = 500){
+  mu_vector = c(proposed_mu)
+  new_mu = c(proposed_mu)
+  for(i in 1:niter){ #do x runs
+    proposal_draw = rnorm(1, 0, 5)# We define an arbitrary proposal mechanism; in this case, you draw from a normal distribution with mean 0 and sd 5
+    
+    # Compare the earlier proposal value for mu with the new. 
+    candidate1 = sum(log(dnorm(data, proposed_mu, 15)))
+    candidate2 = sum(log(dnorm(data, proposed_mu + proposal_draw, 15)))
+    new_mu = c(new_mu, proposed_mu + proposal_draw)
+    
+    # If new proposed value gives you a higher chance of observing first_value, accept it. Otherwise, accept new proposal with probability proportionate to how much lower the posterior is compared to the original proposal. This prevents getting stuck in local maxima.
+    if(candidate2 &gt; candidate1){
+      proposed_mu = proposed_mu + proposal_draw
+    } else {
+      if(runif(1, 0, 1) &lt;= (exp(candidate2 - candidate1))){
+        proposed_mu = proposed_mu + proposal_draw
+      }
+    }
+    
+    # Store each winning proposal to a vector
+    mu_vector = c(mu_vector, proposed_mu)
+  }
+  return(data.frame(mu_vector) %&gt;% cbind(new_mu))
+}</code></pre>
+<p>Having defined the Metropolis algorithm, let’s put it into practise under 3 scenarios:</p>
+<ul>
+<li><p>You wholly believe your test results as representative of your students’ abilities, and so accept the mean of 71.2 as the starting point.</p></li>
+<li><p>You accept your colleague’s advise about your students, and take 55 as your starting point</p></li>
+<li><p>You are an optimist who believes that your students are brilliant, and take 90 as your starting point</p></li>
+</ul>
+<pre class="r"><code>niter = 300
+mu_frequentist &lt;- as.data.frame(x = metropolis_algo(student_results, 71.2, niter = niter)) %&gt;%
+  `colnames&lt;-`(c(&#39;accepted_mu&#39;, &#39;proposed_mu&#39;)) %&gt;%
+  mutate(status = if_else(accepted_mu == proposed_mu, &#39;Accepted&#39;, &#39;Rejected&#39;)) %&gt;%
+  mutate(startingPoint = &#39;Frequentist&#39;)
+mu_colleague &lt;- as.data.frame(x = metropolis_algo(student_results, 55, niter = niter)) %&gt;%
+  `colnames&lt;-`(c(&#39;accepted_mu&#39;, &#39;proposed_mu&#39;)) %&gt;%
+  mutate(status = if_else(accepted_mu == proposed_mu, &#39;Accepted&#39;, &#39;Rejected&#39;)) %&gt;%
+  mutate(startingPoint = &#39;Colleague&#39;)
+mu_optimist &lt;- as.data.frame(x = metropolis_algo(student_results, 90, niter = niter)) %&gt;%
+  `colnames&lt;-`(c(&#39;accepted_mu&#39;, &#39;proposed_mu&#39;)) %&gt;%
+  mutate(status = if_else(accepted_mu == proposed_mu, &#39;Accepted&#39;, &#39;Rejected&#39;)) %&gt;%
+  mutate(startingPoint = &#39;Optimist&#39;)</code></pre>
+<p>Notice how the next proposed value is wholly dependent on the previous proposed value? This is the Markov Chain property that provides half the “MC” in MCMC. Let’s observe what happens to your beliefs about <span class="math inline">\(\mu_0\)</span> as you run this algorithm:</p>
+<p><img src="/post/2020-03-01-markov-chain-monte-carlo-mcmc-metropolis-hastings_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p>Notice how, if your starting points are off, the algorithm takes some time to correct! We usually deal with this by discarding the first few values of the MCMC (where few is up to you to define). This practise is known as “burn in”. The above showed us the path that our “accepted” values took, what about showing both acceptance and rejections? Let’s take the update path under the “Optimist” view as an example:</p>
+<p><img src="/post/2020-03-01-markov-chain-monte-carlo-mcmc-metropolis-hastings_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>We can see how the proposed_mu values bounces around, but the accepted values are largely bounded between 65 and 80, almost like a “confidence interval” of sorts.</p>
+</div>
+<div id="multi-dimensional-mcmc" class="section level3">
+<h3>Multi-dimensional MCMC</h3>
+<p>In the 1 dimensional case above, MCMC converges in less than 100 iterations. Let’s up the difficulty. Using the same example, what if you now lack information of both <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma^2\)</span>? We rewrite the MCMC algorithm to add a proposal process for the <span class="math inline">\(\sigma^2\)</span> value as well:</p>
+<pre class="r"><code>metropolis_algo_multiDim &lt;- function(data, proposed_mu, proposed_sigma, niter = 500){
+  mu_vector = c(proposed_mu)
+  new_mu = c(proposed_mu)
+  
+  sigma_vector = c(proposed_sigma)
+  new_sigma = c(proposed_sigma)
+  
+  for(i in 1:niter){ #do x runs
+    proposal_draw_mu = rnorm(1, 0, 5)# We define an arbitrary proposal mechanism; in this case, you draw from a normal distribution with mean 0 and sd 5
+    proposal_draw_sigma = rnorm(1, 0, 2)
+    
+    # Compare the earlier proposal value for mu with the new. 
+    candidate1 = sum(log(dnorm(data, proposed_mu, proposed_sigma)))
+    candidate2 = sum(log(dnorm(data, proposed_mu + proposal_draw_mu, proposed_sigma + proposal_draw_sigma)))
+    
+    new_mu = c(new_mu, proposed_mu + proposal_draw_mu)
+    new_sigma = c(new_sigma, proposed_sigma + proposal_draw_sigma)
+    
+    # If new proposed value gives you a higher chance of observing first_value, accept it. Otherwise, accept new proposal with probability proportionate to how much lower the posterior is compared to the original proposal. This prevents getting stuck in local maxima.
+    if(candidate2 &gt; candidate1){
+      proposed_mu = proposed_mu + proposal_draw_mu
+      proposed_sigma = proposed_sigma + proposal_draw_sigma
+    } else {
+      if(runif(1, 0, 1) &lt;= (exp(candidate2 - candidate1))){
+        proposed_mu = proposed_mu + proposal_draw_mu
+        proposed_sigma = proposed_sigma + proposal_draw_sigma
+      }
+    }
+    
+    # Store each winning proposal to a vector
+    mu_vector = c(mu_vector, proposed_mu)
+    sigma_vector = c(sigma_vector, proposed_sigma)
+  }
+  return(data.frame(mu_vector) %&gt;% cbind(new_mu) %&gt;% cbind(sigma_vector) %&gt;% cbind(new_sigma) %&gt;% `colnames&lt;-`(c(&#39;accepted_mu&#39;, &#39;proposed_mu&#39;, &#39;accepted_sigma&#39;, &#39;proposed_sigma&#39;)))
+}</code></pre>
+<pre class="r"><code>niter = 300
+mu_frequentist_multiDim &lt;- as.data.frame(x = metropolis_algo_multiDim(student_results, 71.2, proposed_sigma = 15, niter = niter)) %&gt;%
+  mutate(status_mu = if_else(accepted_mu == proposed_mu, &#39;Accepted&#39;, &#39;Rejected&#39;),
+         status_sigma = if_else(accepted_sigma == proposed_sigma, &#39;Accepted&#39;, &#39;Rejected&#39;)) %&gt;%
+  mutate(startingPoint = &#39;Frequentist&#39;)
+mu_colleague_multiDim &lt;- as.data.frame(x = metropolis_algo_multiDim(student_results, 55, proposed_sigma = 5, niter = niter)) %&gt;%
+    mutate(status_mu = if_else(accepted_mu == proposed_mu, &#39;Accepted&#39;, &#39;Rejected&#39;),
+           status_sigma = if_else(accepted_sigma == proposed_sigma, &#39;Accepted&#39;, &#39;Rejected&#39;)) %&gt;%
+  mutate(startingPoint = &#39;Colleague&#39;)
+mu_optimist_multiDim &lt;- as.data.frame(x = metropolis_algo_multiDim(student_results, 90, proposed_sigma = 50, niter = niter)) %&gt;%
+    mutate(status_mu = if_else(accepted_mu == proposed_mu, &#39;Accepted&#39;, &#39;Rejected&#39;),
+           status_sigma = if_else(accepted_sigma == proposed_sigma, &#39;Accepted&#39;, &#39;Rejected&#39;)) %&gt;%
+  mutate(startingPoint = &#39;Optimist&#39;)</code></pre>
+<p><img src="/post/2020-03-01-markov-chain-monte-carlo-mcmc-metropolis-hastings_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p><img src="/post/2020-03-01-markov-chain-monte-carlo-mcmc-metropolis-hastings_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>Once agian, we see that the MCMC returns something very close to the underlying distribution <span class="math inline">\(t \sim N(70, 15)\)</span>! Again, if we use the “Optimist” assumption and run this for a large number of iterations, we see the following heat map showing that most of our accepted values are around the <span class="math inline">\(N(\mu = 70, \sigma^2 = 15)\)</span> region</p>
+<p><img src="/post/2020-03-01-markov-chain-monte-carlo-mcmc-metropolis-hastings_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+</div>
+<div id="conclusion" class="section level3">
+<h3>Conclusion</h3>
+<p>This post discussed the basics of MCMC, as well as the implementation of the Metropolis Hastings algorithm in both the one dimensional and multidimensional cases. In the next series, I will discuss the implementation of Gibbs Sampling and Differential Evolution and why these represent an improvement to the Metropolis Hastings algorithm in some situations.</p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>I meant to do Gibbs Sampling and Differential Evolution in this post too, but as it turns out it got a little too complicated for me. I’ll revisit it after I do a little more homework.<a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</div>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" alt="Img link to Hugo website" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+<script src="/js/math-code.js"></script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+    
+  </body>
+</html>
+

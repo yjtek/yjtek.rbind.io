@@ -15,7 +15,7 @@ tags: []
 <div id="introduction" class="section level3">
 <h3>Introduction</h3>
 <p>Imagine we want want to know the area of a circle embedded in a 1x1 square, but in this alternate universe, we have no clue that the area of a circle can be computed analytically by applying <span class="math inline">\(\pi r^2\)</span>. Is there another way we can estimate this? Well as it turns out, we can do it quite simply! All we have to do to estimate the circle’s area is to drop points within this 1x1 grid randomly. By counting the proportion of points falling inside the circle, we can approximate the circle’s area.</p>
-<p><img src="/post/2020-02-16-markov-chain-monte-carlo-simulations_files/2020-mcmc-Circle-inscribed-in-a-square%20(dots).jpg" /></p>
+<p><img src="/post/2020-03-01-markov-chain-monte-carlo-mcmc-metropolis-hastings_files/2020-mcmc-Circle-inscribed-in-a-square%20(dots).jpg" /></p>
 <p>In the case above, 70% of the points fall within the circle, giving us an estimate that the circle is 0.7cm<sup>2</sup>. This isn’t far at all from the true value of 0.785cm<sup>2</sup>, and you can imagine that our approximation gets better the more points we drop in.</p>
 <p>In a nutshell, what we’ve just done is a Monte Carlo simulation. That is, by drawing <strong>random points within a given space (square)</strong>, we approximate the density of an <strong>unknown distribution (circle)</strong>. The example provided above is in 2 dimensions, but you can see how this idea of randomly dropping points into an unknown distribution generalises quite easily to arbitrarily complex geometries.</p>
 </div>

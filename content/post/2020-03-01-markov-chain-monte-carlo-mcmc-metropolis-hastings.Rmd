@@ -21,7 +21,7 @@ In this post, I will walk through the basics of MCMC, and cover one of the most 
 
 Imagine we want want to know the area of a circle embedded in a 1x1 square, but in this alternate universe, we have no clue that the area of a circle can be computed analytically by applying $\pi r^2$. Is there another way we can estimate this? Well as it turns out, we can do it quite simply! All we have to do to estimate the circle's area is to drop points within this 1x1 grid randomly. By counting the proportion of points falling inside the circle, we can approximate the circle's area. 
 
-![](/post/2020-02-16-markov-chain-monte-carlo-simulations_files/2020-mcmc-Circle-inscribed-in-a-square (dots).jpg)
+![](/post/2020-03-01-markov-chain-monte-carlo-mcmc-metropolis-hastings_files/2020-mcmc-Circle-inscribed-in-a-square (dots).jpg)
 
 In the case above, 70% of the points fall within the circle, giving us an estimate that the circle is 0.7cm^2^. This isn't far at all from the true value of 0.785cm^2^, and you can imagine that our approximation gets better the more points we drop in.
 

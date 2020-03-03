@@ -62,7 +62,7 @@
 
   <article class="article">
     
-    <span class="article-duration">6 min read</span>
+    <span class="article-duration">5 min read</span>
     
 
     <h1 class="article-title">Markov Chain Monte Carlo (MCMC) - Gibbs Sampling</h1>
@@ -75,16 +75,11 @@
       
 
 
-<pre><code>## ── Attaching packages ───────────────────────────── tidyverse 1.3.0 ──</code></pre>
-<pre><code>## ✓ ggplot2 3.2.1     ✓ purrr   0.3.3
-## ✓ tibble  2.1.3     ✓ dplyr   0.8.4
-## ✓ tidyr   1.0.2     ✓ stringr 1.4.0
-## ✓ readr   1.3.1     ✓ forcats 0.4.0</code></pre>
-<pre><code>## ── Conflicts ──────────────────────────────── tidyverse_conflicts() ──
-## x dplyr::filter() masks stats::filter()
-## x dplyr::lag()    masks stats::lag()</code></pre>
 <p><em>Based on “A simple introduction to Markov Chain Monte–Carlo sampling” by <a href="https://link.springer.com/content/pdf/10.3758%2Fs13423-016-1015-8.pdf">Ravenzwaaij et al.</a>:</em></p>
+<div id="introduction" class="section level3">
+<h3>Introduction</h3>
 <p>In an <a href="/2020/03/01/markov-chain-monte-carlo-mcmc-metropolis-hastings/">earlier post</a>, I discussed the basic idea of MCMC methods, and provided an overview of the Metropolis algorithm. In this section, I’ll jump straight into the motivation for Gibbs Sampling, and an overview of how the algorithm works.</p>
+</div>
 <div id="what-is-the-point-of-gibbs-sampling-if-we-already-know-the-metropolis-algorithm" class="section level3">
 <h3>What is the point of Gibbs Sampling if we already know the Metropolis algorithm?</h3>
 <p>Both Gibbs Sampling and the Metropolis Algorithm are actually pretty similar in terms of the general structure. Both use an accept-reject algorithm to iteratively draw samples from the underlying unknown distribution to move towards the most likely distribution. The key difference is in the proposal step for the new values in every iteration - while the Metropolis algorithm samples from the <em>joint</em> probability distribution of the parameters, Gibbs Sampling draws from the <em>conditional</em> distribution instead.</p>

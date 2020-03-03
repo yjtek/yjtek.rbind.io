@@ -17,8 +17,9 @@
       <pubDate>Tue, 03 Mar 2020 00:00:00 +0000</pubDate>
       
       <guid>/2020/03/03/markov-chain-monte-carlo-mcmc-gibbs-sampling/</guid>
-      <description>## ── Attaching packages ───────────────────────────── tidyverse 1.3.0 ── ## ✓ ggplot2 3.2.1 ✓ purrr 0.3.3 ## ✓ tibble 2.1.3 ✓ dplyr 0.8.4 ## ✓ tidyr 1.0.2 ✓ stringr 1.4.0 ## ✓ readr 1.3.1 ✓ forcats 0.4.0 ## ── Conflicts ──────────────────────────────── tidyverse_conflicts() ── ## x dplyr::filter() masks stats::filter() ## x dplyr::lag() masks stats::lag() Based on “A simple introduction to Markov Chain Monte–Carlo sampling” by Ravenzwaaij et al.:
-In an earlier post, I discussed the basic idea of MCMC methods, and provided an overview of the Metropolis algorithm.</description>
+      <description>Based on “A simple introduction to Markov Chain Monte–Carlo sampling” by Ravenzwaaij et al.:
+Introduction In an earlier post, I discussed the basic idea of MCMC methods, and provided an overview of the Metropolis algorithm. In this section, I’ll jump straight into the motivation for Gibbs Sampling, and an overview of how the algorithm works.
+ What is the point of Gibbs Sampling if we already know the Metropolis algorithm?</description>
     </item>
     
     <item>

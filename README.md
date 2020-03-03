@@ -1,2 +1,2 @@
-# yjtek.github.io
+# yjtek.rbind.io
 blogdown

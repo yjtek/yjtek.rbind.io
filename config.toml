@@ -1,6 +1,6 @@
-baseurl = "/"
+baseurl = "http://yjtek.rbind.io/"
 languageCode = "en-us"
-title = "playpen"
+title = "Sandbox"
 theme = "hugo-lithium"
 googleAnalytics = ""
 disqusShortname = ""

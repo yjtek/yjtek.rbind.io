@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.59.1" />
+
+
+<title>Markov Chain Monte Carlo (MCMC) - Gibbs Sampling - Sandbox</title>
+<meta property="og:title" content="Markov Chain Monte Carlo (MCMC) - Gibbs Sampling - Sandbox">
+
+
+  <link href='/favicon.ico' rel='icon' type='image/x-icon'/>
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/yjtek">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/yjtek">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">3 min read</span>
+    
+
+    <h1 class="article-title">Markov Chain Monte Carlo (MCMC) - Gibbs Sampling</h1>
+
+    
+    <span class="article-date">2020-03-03</span>
+    
+
+    <div class="article-content">
+      
+
+
+<pre><code>## ── Attaching packages ───────────────────────────── tidyverse 1.3.0 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.2.1     ✓ purrr   0.3.3
+## ✓ tibble  2.1.3     ✓ dplyr   0.8.4
+## ✓ tidyr   1.0.2     ✓ stringr 1.4.0
+## ✓ readr   1.3.1     ✓ forcats 0.4.0</code></pre>
+<pre><code>## ── Conflicts ──────────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<p><em>Based on “A simple introduction to Markov Chain Monte–Carlo sampling” by <a href="https://link.springer.com/content/pdf/10.3758%2Fs13423-016-1015-8.pdf">Ravenzwaaij et al.</a>:</em></p>
+<p>In an <a href="/2020/03/01/markov-chain-monte-carlo-mcmc-metropolis-hastings/">earlier post</a>, I discussed the basic idea of MCMC methods, and provided an overview of the Metropolis algorithm. In this section, I’ll jump straight into the motivation for Gibbs Sampling, and an overview of how the algorithm works.</p>
+<div id="what-is-the-point-of-gibbs-sampling-if-we-already-know-the-metropolis-algorithm" class="section level3">
+<h3>What is the point of Gibbs Sampling if we already know the Metropolis algorithm?</h3>
+<p>Both Gibbs Sampling and the Metropolis Algorithm are actually pretty similar in terms of the general structure. Both use an accept-reject algorithm to iteratively draw samples from the underlying unknown distribution to move towards the most likely distribution. The key difference is in the proposal step for the new values in every iteration - while the Metropolis algorithm samples from the <em>joint</em> probability distribution of the parameters, Gibbs Sampling draws from the <em>conditional</em> distribution instead.</p>
+<p>Mathematically, this means that the Metropolis algorithm compares <span class="math inline">\(\frac{L^{met}_1}{L^{met}_{0}} = \frac{\prod_{i = 1}^{n}{P(\mathbf{x_i}|\mu_1, \sigma_1)}}{\prod_{i = 1}^{n}{P(\mathbf{x_i}|\mu_0, \sigma_0)}}\)</span>; that is, what is the likelihood of the data under the current set of parameters <span class="math inline">\((\mu_0, \sigma_0)\)</span> compared to the likelihood of the data under a new set of parameters <span class="math inline">\((\mu_1, \sigma_1)\)</span>. Notice that my new parameters are varied at the same time, i.e. they are sampled jointly from the unknown distribution of <span class="math inline">\((\mu, \sigma)\)</span>.</p>
+<p>While the Metropolis algorithm works well in most cases, there are situations where it can converge too slowly to provide a meaningful answer. For instance, if the underlying parameters are highly correlated, the Metropolis algorithm will reject an overly large number of samples, leading to slow convergence.</p>
+<p><img src="/post/2020-03-03-markov-chain-monte-carlo-mcmc-gibbs-sampling_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>This is best illustrated by an example. The chart above shows a scatter plot of 2 parameters. Suppose we start off at the orange point as our prior value. The Metropolis algorithm effectively samples the space around the chosen point uniformly to arrive at the next proposal. As you might imagine, this leads to more rejections than necessary since a large proportion of the proposals will not take the parameter correlation into account.</p>
+</div>
+<div id="gibbs-sampling" class="section level3">
+<h3>Gibbs Sampling</h3>
+<p>The main insight of Gibbs sampling is: wherever drawing from the joint distribution is suboptimal (for whatever reason), why not try drawing from the <em>condition</em> distribution instead? In this way, the joint distribution between parameters is respected over an extended number of iterations. <a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
+<p>Just like our Metropolis algorithm earlier, we can set up a similar example</p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>See this set of <a href="http://www2.stat.duke.edu/~rcs46/modern_bayes17/lecturesModernBayes17/lecture-7/07-gibbs.pdf">notes</a> on Gibbs sampling for more details<a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</div>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" alt="Img link to Hugo website" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+<script src="/js/math-code.js"></script>
+<script async src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+
+    
+  </body>
+</html>
+

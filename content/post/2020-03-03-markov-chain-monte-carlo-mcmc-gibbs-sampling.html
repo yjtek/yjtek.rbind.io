@@ -30,7 +30,102 @@ tags: []
 <div id="gibbs-sampling" class="section level3">
 <h3>Gibbs Sampling</h3>
 <p>The main insight of Gibbs sampling is: wherever drawing from the joint distribution is suboptimal (for whatever reason), why not try drawing from the <em>condition</em> distribution instead? In this way, the joint distribution between parameters is respected over an extended number of iterations. <a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
-<p>Just like our Metropolis algorithm earlier, we can set up a similar example</p>
+<p>The Gibbs Sampling Algorithm is summarised below: <br></p>
+<ol style="list-style-type: decimal">
+<li>Give your best guess for the parameter(s) of interest. In this case, let’s say this is <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span>. We will call this <span class="math inline">\(\mu_0\)</span> and <span class="math inline">\(\sigma_0\)</span></li>
+<li>Next, we compute the likelihood <span class="math inline">\(L_0\)</span> of the parameter being <span class="math inline">\(\mu_0\)</span> conditional on the data we observe, or <span class="math inline">\(P(\mu_0 | Data)\)</span>. By Bayes’ rule, this is equal to <span class="math inline">\(\frac{P(Data | \mu_0, \sigma_0) \cdotp P(\mu_0, \sigma_0)}{P(Data)}\)</span>.</li>
+<li>Add a random perturbation to <strong>one</strong> of your parameters, holding everything else constant. Suppose we add a random perturbation to <span class="math inline">\(\mu_0\)</span>. Let’s call this new parameter <span class="math inline">\(\mu_1\)</span>.</li>
+<li>Again, compute the likelihood <span class="math inline">\(L_1\)</span> of the parameters being <span class="math inline">\((\mu_1, \sigma_0)\)</span> conditional on the data you observe, <span class="math inline">\(P(\mu_1, \sigma_0 | Data)\)</span></li>
+<li>Compare the likelihood scores of hyperparameters given the data.
+<ol style="list-style-type: lower-alpha">
+<li>If <span class="math inline">\(L_1\)</span> &gt; <span class="math inline">\(L_0\)</span>, <span class="math inline">\((\mu_1, \sigma_0)\)</span> becomes your best guess</li>
+<li>If <span class="math inline">\(L_1\)</span> &lt;= <span class="math inline">\(L_0\)</span>, <span class="math inline">\((\mu_1, \sigma_0)\)</span> is chosen with probability <span class="math inline">\(L_1 / L_2\)</span></li>
+</ol></li>
+<li>For illustration, let’s assume the proposed <span class="math inline">\(\mu_1\)</span> was accepted. We now hold <span class="math inline">\(\mu_1\)</span> constant, and add a random perturbation to <span class="math inline">\(\sigma_0\)</span>. Let’s now call this <span class="math inline">\(\sigma_1\)</span>.</li>
+<li>Compute the likelihood <span class="math inline">\(L_2\)</span> of the parameters being <span class="math inline">\((\mu_1, \sigma_1)\)</span> conditional on the data you observe, <span class="math inline">\(P(\mu_1, \sigma_1 | Data)\)</span></li>
+<li>Compare the likelihood scores of hyperparameters given the data.
+<ol style="list-style-type: lower-alpha">
+<li>If <span class="math inline">\(L_2\)</span> &gt; <span class="math inline">\(L_1\)</span>, <span class="math inline">\((\mu_1, \sigma_1)\)</span> becomes your best guess</li>
+<li>If <span class="math inline">\(L_2\)</span> &lt;= <span class="math inline">\(L_1\)</span>, <span class="math inline">\((\mu_1, \sigma_1)\)</span> is chosen with probability <span class="math inline">\(L_2 / L_1\)</span></li>
+</ol></li>
+<li>Repeat from step 1 for a given number of iterations</li>
+</ol>
+<pre class="r"><code>gibbs_sampling &lt;- function(data, proposed_mu, proposed_sigma, niter = 500){
+  
+  proposed_param = data.frame(proposed_mu = proposed_mu, proposed_sigma = proposed_sigma)
+  accept_param = data.frame(accept_mu = proposed_mu, accept_sigma = proposed_sigma)
+  
+  current_mu = proposed_mu
+  current_sigma = proposed_sigma
+  
+  for(i in 1:niter){
+    
+    # Proposal for mu ====
+    proposal_draw = rnorm(1, 0, 5)
+    
+    # Compare the earlier proposal value for mu with the new. 
+    candidate1 = sum(log(dnorm(data, current_mu, current_sigma)))
+    candidate2 = sum(log(dnorm(data, current_mu + proposal_draw, current_sigma)))
+    proposed_param = proposed_param %&gt;%
+      bind_rows(data.frame(proposed_mu = current_mu + proposal_draw, proposed_sigma = current_sigma))
+    
+    # If new proposed value gives you a higher chance of observing first_value, accept it. Otherwise, accept new proposal with probability proportionate to how much lower the posterior is compared to the original proposal. This prevents getting stuck in local maxima.
+    if(candidate2 &gt; candidate1){
+      current_mu = current_mu + proposal_draw
+    } else {
+      if(runif(1, 0, 1) &lt;= (exp(candidate2 - candidate1))){
+        current_mu = current_mu + proposal_draw
+      }
+    }
+    accept_param = accept_param %&gt;%
+      bind_rows(data.frame(accept_mu = current_mu, accept_sigma = current_sigma))
+    
+    # Proposal for sigma ====
+    
+    proposal_draw = rnorm(1, 0, 2)
+    
+    # Compare the earlier proposal value for mu with the new. 
+    candidate1 = sum(log(dnorm(data, current_mu, current_sigma)))
+    candidate2 = sum(log(dnorm(data, current_mu, current_sigma + proposal_draw)))
+    proposed_param = proposed_param %&gt;%
+      bind_rows(data.frame(proposed_mu = current_mu, proposed_sigma = current_sigma + proposal_draw))
+    # If new proposed value gives you a higher chance of observing first_value, accept it. Otherwise, accept new proposal with probability proportionate to how much lower the posterior is compared to the original proposal. This prevents getting stuck in local maxima.
+    if(candidate2 &gt; candidate1){
+      current_sigma = current_sigma + proposal_draw
+    } else {
+      if(runif(1, 0, 1) &lt;= (exp(candidate2 - candidate1))){
+        current_sigma = current_sigma + proposal_draw
+      }
+    }
+    accept_param = accept_param %&gt;%
+      bind_rows(data.frame(accept_mu = current_mu, accept_sigma = current_sigma))
+    
+  }
+  return(proposed_param %&gt;% bind_cols(accept_param))
+}</code></pre>
+<p>Looking at the path of the parameters taken by the Gibbs sampler, we can see the distinct unidirectional pattern at each stage of the accept-reject algorithm.</p>
+<pre class="r"><code>gibbs_sampling(student_results, proposed_mu = 10, proposed_sigma = 100, niter = 1000) %&gt;%
+  mutate(series = 1:2001) %&gt;%
+  ggplot(aes(x = accept_sigma, y = accept_mu, colour = series)) +
+  geom_point() +
+  geom_path() +
+  theme_classic() +
+  theme(legend.position = &#39;none&#39;)</code></pre>
+<p><img src="/post/2020-03-03-markov-chain-monte-carlo-mcmc-gibbs-sampling_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>Comparing this to the Metropolis algorithm:</p>
+<pre class="r"><code>metropolis_algo_multiDim(student_results, proposed_mu = 10, proposed_sigma = 100, niter = 1000) %&gt;%
+  mutate(series = 1:1001) %&gt;%
+  ggplot(aes(x = accepted_sigma, y = accepted_mu, colour = series)) +
+  geom_point() +
+  geom_path() +
+  theme_classic() +
+  theme(legend.position = &#39;none&#39;)</code></pre>
+<p><img src="/post/2020-03-03-markov-chain-monte-carlo-mcmc-gibbs-sampling_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p>It’s clear how the two sampling algorithms differ in their accept-reject procedures.</p>
+</div>
+<div id="conclusion" class="section level3">
+<h3>Conclusion</h3>
+<p>In this post, we covered the motivation for more complex sampling methodologies like Gibbs sampling in dealing with cases where the sampled parameters are correlated. In the next post, I will discuss another methodology used in these sampling methods - differential evolution.</p>
 </div>
 <div class="footnotes">
 <hr />

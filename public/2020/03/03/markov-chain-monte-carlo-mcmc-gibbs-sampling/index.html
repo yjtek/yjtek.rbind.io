@@ -84,13 +84,11 @@
 <h3>What is the point of Gibbs Sampling if we already know the Metropolis algorithm?</h3>
 <p>Both Gibbs Sampling and the Metropolis Algorithm are actually pretty similar in terms of the general structure. Both use an accept-reject algorithm to iteratively draw samples from the underlying unknown distribution to move towards the most likely distribution. The key difference is in the proposal step for the new values in every iteration - while the Metropolis algorithm samples from the <em>joint</em> probability distribution of the parameters, Gibbs Sampling draws from the <em>conditional</em> distribution instead.</p>
 <p>Mathematically, this means that the Metropolis algorithm compares <span class="math inline">\(\frac{L^{met}_1}{L^{met}_{0}} = \frac{\prod_{i = 1}^{n}{P(\mathbf{x_i}|\mu_1, \sigma_1)}}{\prod_{i = 1}^{n}{P(\mathbf{x_i}|\mu_0, \sigma_0)}}\)</span>; that is, what is the likelihood of the data under the current set of parameters <span class="math inline">\((\mu_0, \sigma_0)\)</span> compared to the likelihood of the data under a new set of parameters <span class="math inline">\((\mu_1, \sigma_1)\)</span>. Notice that my new parameters are varied at the same time, i.e. they are sampled jointly from the unknown distribution of <span class="math inline">\((\mu, \sigma)\)</span>.</p>
-<p>While the Metropolis algorithm works well in most cases, there are situations where it can converge too slowly to provide a meaningful answer. For instance, if the underlying parameters are highly correlated, the Metropolis algorithm will reject an overly large number of samples, leading to slow convergence.</p>
-<p><img src="/post/2020-03-03-markov-chain-monte-carlo-mcmc-gibbs-sampling_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
-<p>This is best illustrated by an example. The chart above shows a scatter plot of 2 parameters. Suppose we start off at the orange point as our prior value. The Metropolis algorithm effectively samples the space around the chosen point uniformly to arrive at the next proposal. As you might imagine, this leads to more rejections than necessary since a large proportion of the proposals will not take the parameter correlation into account.</p>
+<p>While the Metropolis algorithm works well in most cases, there are situations where it can converge too slowly to provide a meaningful answer. For instance, if the underlying parameters are highly correlated, or if the dimensionality of the parameter set is too high (i.e. too many parameters for you to guess), the Metropolis algorithm can converge too slowly to be useful.</p>
 </div>
 <div id="gibbs-sampling" class="section level3">
 <h3>Gibbs Sampling</h3>
-<p>The main insight of Gibbs sampling is: wherever drawing from the joint distribution is suboptimal (for whatever reason), why not try drawing from the <em>condition</em> distribution instead? In this way, the joint distribution between parameters is respected over an extended number of iterations. <a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
+<p>As mentioned above, the main insight of Gibbs sampling is: wherever drawing from the joint distribution is suboptimal, we can try to draw from the <em>condition</em> distribution instead. In this way, the joint distribution between parameters is respected over an extended number of iterations, and unidimensional sampling is much easier to evaluate. <a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
 <p>The Gibbs Sampling Algorithm is summarised below: <br></p>
 <ol style="list-style-type: decimal">
 <li>Give your best guess for the parameter(s) of interest. In this case, let’s say this is <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span>. We will call this <span class="math inline">\(\mu_0\)</span> and <span class="math inline">\(\sigma_0\)</span></li>
@@ -172,7 +170,7 @@
   geom_path() +
   theme_classic() +
   theme(legend.position = &#39;none&#39;)</code></pre>
-<p><img src="/post/2020-03-03-markov-chain-monte-carlo-mcmc-gibbs-sampling_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p><img src="/post/2020-03-03-markov-chain-monte-carlo-mcmc-gibbs-sampling_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 <p>Comparing this to the Metropolis algorithm:</p>
 <pre class="r"><code>metropolis_algo_multiDim(student_results, proposed_mu = 10, proposed_sigma = 100, niter = 1000) %&gt;%
   mutate(series = 1:1001) %&gt;%
@@ -181,7 +179,7 @@
   geom_path() +
   theme_classic() +
   theme(legend.position = &#39;none&#39;)</code></pre>
-<p><img src="/post/2020-03-03-markov-chain-monte-carlo-mcmc-gibbs-sampling_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p><img src="/post/2020-03-03-markov-chain-monte-carlo-mcmc-gibbs-sampling_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
 <p>It’s clear how the two sampling algorithms differ in their accept-reject procedures.</p>
 </div>
 <div id="conclusion" class="section level3">

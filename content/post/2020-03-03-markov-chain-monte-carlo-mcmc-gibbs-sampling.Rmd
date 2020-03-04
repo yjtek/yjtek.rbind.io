@@ -23,28 +23,11 @@ Both Gibbs Sampling and the Metropolis Algorithm are actually pretty similar in 
 
 Mathematically, this means that the Metropolis algorithm compares $\frac{L^{met}_1}{L^{met}_{0}} = \frac{\prod_{i = 1}^{n}{P(\mathbf{x_i}|\mu_1, \sigma_1)}}{\prod_{i = 1}^{n}{P(\mathbf{x_i}|\mu_0, \sigma_0)}}$; that is, what is the likelihood of the data under the current set of parameters $(\mu_0, \sigma_0)$ compared to the likelihood of the data under a new set of parameters $(\mu_1, \sigma_1)$. Notice that my new parameters are varied at the same time, i.e. they are sampled jointly from the unknown distribution of $(\mu, \sigma)$.
 
-While the Metropolis algorithm works well in most cases, there are situations where it can converge too slowly to provide a meaningful answer. For instance, if the underlying parameters are highly correlated, the Metropolis algorithm will reject an overly large number of samples, leading to slow convergence. 
-
-```{r, echo = F, return = T}
-set.seed(1)
-n = 10000
-x = rnorm(n)
-y = 2*x + 3 + rnorm(n, 0, 1.25)
-test = data.frame(x = x, y = y)
-ggplot(test, aes(x = x, y = y)) +
-  geom_point() + 
-  geom_point(data = test[75,],
-             pch=21, fill=NA, size=25, colour="red", stroke=1.5) + 
-  geom_point(data = test[75,],
-             pch=21, fill='orange', size=2, colour="orange", stroke=0.5) +
-  theme_classic()
-```
-
-This is best illustrated by an example. The chart above shows a scatter plot of 2 parameters. Suppose we start off at the orange point as our prior value. The Metropolis algorithm effectively samples the space around the chosen point uniformly to arrive at the next proposal. As you might imagine, this leads to more rejections than necessary since a large proportion of the proposals will not take the parameter correlation into account.
+While the Metropolis algorithm works well in most cases, there are situations where it can converge too slowly to provide a meaningful answer. For instance, if the underlying parameters are highly correlated, or if the dimensionality of the parameter set is too high (i.e. too many parameters for you to guess), the Metropolis algorithm can converge too slowly to be useful. 
 
 ### Gibbs Sampling
 
-The main insight of Gibbs sampling is: wherever drawing from the joint distribution is suboptimal (for whatever reason), why not try drawing from the *condition* distribution instead? In this way, the joint distribution between parameters is respected over an extended number of iterations. ^[See this set of [notes](http://www2.stat.duke.edu/~rcs46/modern_bayes17/lecturesModernBayes17/lecture-7/07-gibbs.pdf) on Gibbs sampling for more details]
+As mentioned above, the main insight of Gibbs sampling is: wherever drawing from the joint distribution is suboptimal, we can try to draw from the *condition* distribution instead. In this way, the joint distribution between parameters is respected over an extended number of iterations, and unidimensional sampling is much easier to evaluate. ^[See this set of [notes](http://www2.stat.duke.edu/~rcs46/modern_bayes17/lecturesModernBayes17/lecture-7/07-gibbs.pdf) on Gibbs sampling for more details]
 
 The Gibbs Sampling Algorithm is summarised below: <br>
 

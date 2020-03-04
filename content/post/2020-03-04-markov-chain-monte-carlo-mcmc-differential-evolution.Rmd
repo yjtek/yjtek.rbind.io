@@ -1,0 +1,35 @@
+---
+title: Markov Chain Monte Carlo (MCMC) - Differential Evolution
+author: yjtek
+date: '2020-03-04'
+slug: markov-chain-monte-carlo-mcmc-differential-evolution
+categories: []
+tags: []
+---
+
+```{r, echo = F, include = F}
+library(tidyverse)
+```
+
+*Based on "A simple introduction to Markov Chain Monte–Carlo sampling" by [Ravenzwaaij et al.](https://link.springer.com/content/pdf/10.3758%2Fs13423-016-1015-8.pdf):*
+
+### Introduction
+
+Hi 
+
+```{r, echo = F, return = T}
+set.seed(1)
+n = 10000
+x = rnorm(n)
+y = 2*x + 3 + rnorm(n, 0, 1.25)
+test = data.frame(x = x, y = y)
+ggplot(test, aes(x = x, y = y)) +
+  geom_point() + 
+  geom_point(data = test[75,],
+             pch=21, fill=NA, size=25, colour="red", stroke=1.5) + 
+  geom_point(data = test[75,],
+             pch=21, fill='orange', size=2, colour="orange", stroke=0.5) +
+  theme_classic()
+```
+
+This is best illustrated by an example. The chart above shows a scatter plot of 2 parameters. Suppose we start off at the orange point as our prior value. The Metropolis algorithm effectively samples the space around the chosen point uniformly to arrive at the next proposal. As you might imagine, this leads to more rejections than necessary since a large proportion of the proposals will not take the parameter correlation into account.

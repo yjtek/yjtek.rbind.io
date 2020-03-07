@@ -17,9 +17,9 @@
       <pubDate>Wed, 04 Mar 2020 00:00:00 +0000</pubDate>
       
       <guid>/2020/03/04/markov-chain-monte-carlo-mcmc-differential-evolution/</guid>
-      <description>Based on “A simple introduction to Markov Chain Monte–Carlo sampling” by Ravenzwaaij et al.:
-Introduction Hi
-This is best illustrated by an example. The chart above shows a scatter plot of 2 parameters. Suppose we start off at the orange point as our prior value. The Metropolis algorithm effectively samples the space around the chosen point uniformly to arrive at the next proposal. As you might imagine, this leads to more rejections than necessary since a large proportion of the proposals will not take the parameter correlation into account.</description>
+      <description>Based on “A simple introduction to Markov Chain Monte–Carlo sampling” by Ravenzwaaij et al., and blog post by Pablo R. Mier
+Introduction In two previous blog posts, we covered the basics of MCMC and 2 common implementations - Metropolis-Hastings Algorithm1, and Gibbs Sampling. In this post, I will discuss the last algorithm discussed in the Ravenzwaaij paper cited above - Differential Evolution (DE).
+ Motivation for DE? As discussed previously, the sampling procedure used by the Metropolis/Gibbs sampling algorithms may sometimes be a hindrance to fast convergence (e.</description>
     </item>
     
     <item>

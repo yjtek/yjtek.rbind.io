@@ -9,10 +9,119 @@ tags: []
 
 
 
-<p><em>Based on “A simple introduction to Markov Chain Monte–Carlo sampling” by <a href="https://link.springer.com/content/pdf/10.3758%2Fs13423-016-1015-8.pdf">Ravenzwaaij et al.</a>:</em></p>
+<p><em>Based on “A simple introduction to Markov Chain Monte–Carlo sampling” by <a href="https://link.springer.com/content/pdf/10.3758%2Fs13423-016-1015-8.pdf">Ravenzwaaij et al.</a>, and blog post by <a href="https://pablormier.github.io/2017/09/05/a-tutorial-on-differential-evolution-with-python/">Pablo R. Mier</a></em></p>
 <div id="introduction" class="section level3">
 <h3>Introduction</h3>
-<p>Hi</p>
+<p>In two previous blog posts, we covered the basics of MCMC and 2 common implementations - <a href="/2020/03/01/markov-chain-monte-carlo-mcmc-metropolis-hastings/">Metropolis-Hastings Algorithm</a><a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, and <a href="/2020/03/03/markov-chain-monte-carlo-mcmc-gibbs-sampling/">Gibbs Sampling</a>. In this post, I will discuss the last algorithm discussed in the Ravenzwaaij paper cited above - Differential Evolution (DE).</p>
+</div>
+<div id="motivation-for-de" class="section level3">
+<h3>Motivation for DE?</h3>
+<p>As discussed <a href="/2020/03/03/markov-chain-monte-carlo-mcmc-gibbs-sampling/">previously</a>, the sampling procedure used by the Metropolis/Gibbs sampling algorithms may sometimes be a hindrance to fast convergence (e.g. parameters may be drawn from distributions that are heavily correlated, or parameter sets may have many dimensions).</p>
+<p>Gibbs sampling tries to resolve this to some extent by drawing from conditional probabilities, but it doesn’t fully resolve the issue of correlation in the accept-reject phase. This is illustrated below:</p>
 <p><img src="/post/2020-03-04-markov-chain-monte-carlo-mcmc-differential-evolution_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
-<p>This is best illustrated by an example. The chart above shows a scatter plot of 2 parameters. Suppose we start off at the orange point as our prior value. The Metropolis algorithm effectively samples the space around the chosen point uniformly to arrive at the next proposal. As you might imagine, this leads to more rejections than necessary since a large proportion of the proposals will not take the parameter correlation into account.</p>
+<p>The chart above shows a scatter plot of 2 parameters. Suppose we start off at the orange point as our prior value. The Metropolis/Gibbs algorithm effectively samples the space around the chosen point uniformly to arrive at the next proposal. As you might imagine, this leads to more rejections than necessary since a large proportion of the proposals will not take the parameter correlation into account.</p>
+</div>
+<div id="differential-evolution-de" class="section level3">
+<h3>Differential Evolution (DE)</h3>
+<p>DE is a class of algorithms that are proposed to solve optimisation problems that may not have a clear functional form, such that the usual methods of taking the partial derivatives does not always work. The main insight of DE algorithms is that global minima can be reached simply by using vector differences to perturb the vector population. Intuitively, this resolves correlational issues since vector differences between “accepted” values will tend to be oriented along the axis in the direction towards the minima, and this approach doesn’t rely on any parametric assumptions.</p>
+<p>This sounds unnecessarily complicated, but it really isn’t. We will explore a simulation in the next section to illustrate this process.</p>
+<p>Briefly, the DE algorithm is: <br></p>
+<ol style="list-style-type: decimal">
+<li>Choose <span class="math inline">\(N\)</span> guesses to serve as the starting parameter(s) guess of for each of your simulated sampling chains. Let’s call these chains <span class="math inline">\(\Theta_1, \Theta_2, ..., \Theta_N\)</span> where <span class="math inline">\(\Theta_i = (\theta_{i,1}, \theta_{i,2}...)\)</span>. Note that <span class="math inline">\(Theta_i\)</span> is a general representation; it can be a vector of parameters or a single parameter.</li>
+<li>For each of these starting values, we calculate a “fitness” score relative to our cost function. To use the same example used in the previous posts, we are evaluating the likelihood of the parameters relative to the test scores we see.</li>
+<li>Let’s suppose we want to generate the next parameter values for the <span class="math inline">\(\Theta_1\)</span> chain. Call this the <strong>target vector</strong>.</li>
+<li>We choose 3 other chains at random, and call these <span class="math inline">\(\Theta_{i}\)</span>, <span class="math inline">\(\Theta_{j}\)</span> and <span class="math inline">\(\Theta_{k}\)</span>.</li>
+<li>We designate the <span class="math inline">\(\Theta_{i}\)</span> as our <strong>base vector</strong>, and find the vector difference between <span class="math inline">\(\Theta_{j}\)</span> and <span class="math inline">\(Theta_{k}\)</span>. More specifically, for each element <span class="math inline">\(\theta_{i,x}\)</span> in <span class="math inline">\(\Theta_{i} = (\theta_{i,x}); x \in 1:n\)</span>, we add the difference <span class="math inline">\(\theta_{j,x} - \theta_{k,x}\)</span> multiplied by a hyperparameter <span class="math inline">\(\gamma\)</span>. To avoid cases where the values are the same, we add a random perturbation <span class="math inline">\(\epsilon_x\)</span>.</li>
+<li>By doing this, we generate a new vector <span class="math inline">\(\Theta_{i&#39;}\)</span>. Let’s call this the <strong>mutant vector</strong>. This is the “mutation” phase of the algorithm, similar to the proposal step in our earlier algorithms. Notice how the proposed changes are in are aligned along the same axis as the vector differences between accepted values in other chains!</li>
+<li>We now randomly choose to swap values between our mutant and target vectors, thereby mixing new pieces of information with our existing target vector. This is the final transformation to be performed, and we call this the <strong>trial vector</strong>.</li>
+<li>Compare the performance of the trial vector to the target vector. If the trial vector outperforms the target, it now replaces the target as one of our <span class="math inline">\(N\)</span> proposed vectors. Otherwise reject it. Simulated annealing is <em>extremely</em> suboptimal here. You are using other vectors as part of your proposal criteria, so accepting suboptimal parameters will cause non-convergence.</li>
+</ol>
+</div>
+<div id="visualising-the-de-accept-reject-process" class="section level3">
+<h3>Visualising the DE Accept-Reject Process</h3>
+<p>In our earlier algorithms, we could visualise the accept-reject process since only 1 chain is considered at any time. Under DE, however, there are multiple chains of simulations, and hence multiple values. To avoid confusion, I will just visualise 1 chain out of the multiple simulations. But keep in mind that the evolution of the values across all chains are essentially similar; that is, they all converge to the minima.</p>
+<p>Let’s first recap how the convergence path looked like under the Metropolis algorithm and Gibbs sampling:</p>
+<!-- Gibbs Sampler code -->
+<!-- Metropolis Sampler code -->
+<!-- Generate student results -->
+<div class="figure"><span id="fig:unnamed-chunk-6"></span>
+<img src="/post/2020-03-04-markov-chain-monte-carlo-mcmc-differential-evolution_files/figure-html/unnamed-chunk-6-1.png" alt="Gibbs Sampling Path" width="672" />
+<p class="caption">
+Figure 1: Gibbs Sampling Path
+</p>
+</div>
+<div class="figure"><span id="fig:unnamed-chunk-7"></span>
+<img src="/post/2020-03-04-markov-chain-monte-carlo-mcmc-differential-evolution_files/figure-html/unnamed-chunk-7-1.png" alt="Metropolis Sampling Path" width="672" />
+<p class="caption">
+Figure 2: Metropolis Sampling Path
+</p>
+</div>
+<p>What does the DE path look like?</p>
+<!-- Differential Evolution code -->
+<pre class="r"><code>calculate_fitness = function(data = student_results, mu, sigma){sum(log(dnorm(data, mu, sigma)))}
+differential_evolution &lt;- function(data, nchains, nparams, niter = 5000, gamma = 1.19, swap_prob = 0.25){
+  
+  # nchains = 10
+  # nparams = 2
+  # niter = 5000
+  # gamma = 1.19
+  # swap_prob = 0.25
+  
+  proposed_starts &lt;- as.data.frame(matrix(lapply(1:(nchains*nparams), function(x) runif(1)*100), ncol = 2)) %&gt;% `colnames&lt;-`(c(&#39;mu&#39;, &#39;sigma&#39;))
+  proposed_starts &lt;- apply(proposed_starts, 2, function(x) unlist(x))
+  population = proposed_starts
+  record = cbind(unlist(population), swapIndex = 1:nchains)
+  
+  for(i in 1:niter){
+    random_chain_choices &lt;- sample(1:nchains, size = 4, replace = F)
+  
+    target_vector = population[random_chain_choices[1],]
+    base_vector = population[random_chain_choices[2],]
+    diff_vector_1 = population[random_chain_choices[3],]
+    diff_vector_2 = population[random_chain_choices[4],]
+    
+    proposal_value = gamma * (diff_vector_2 - diff_vector_1) + runif(1, -0.001, 0.001)
+    mutant_vector = (base_vector) + (proposal_value)
+    swap_here = runif(2) &lt;= swap_prob
+    mutant_vector[swap_here] = target_vector[swap_here]
+    trial_vector &lt;- mutant_vector
+    trial_vector[trial_vector &lt; 0] = 0
+    trial_vector[trial_vector &gt; 100] = 100
+    
+    trial_fitness = calculate_fitness(mu = trial_vector[1], sigma = trial_vector[2])
+    if(trial_fitness == -Inf){
+      trial_fitness = -999999
+    } else if(trial_fitness == Inf){
+      trial_fitness = 999999
+    }
+    target_fitness = calculate_fitness(mu = target_vector[1], sigma = target_vector[2])
+    if(target_fitness == -Inf){
+      target_fitness = -999999
+    } else if(target_fitness == Inf){
+      target_fitness = 999999
+    }
+    
+    if(trial_fitness &gt; target_fitness){
+      population[random_chain_choices[1],] &lt;- trial_vector
+      record &lt;- rbind(record, c(unlist(trial_vector), swapIndex = random_chain_choices[1]))
+    } else {
+      record &lt;- rbind(record, c(unlist(target_vector), swapIndex = random_chain_choices[1]))
+    }
+  }
+  return(list(population, record))
+}</code></pre>
+<pre><code>## [1] &quot;Converged mu: 73.1284630414105&quot;</code></pre>
+<pre><code>## [1] &quot;Converged sigma: 14.9742478300499&quot;</code></pre>
+<p><img src="/post/2020-03-04-markov-chain-monte-carlo-mcmc-differential-evolution_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+</div>
+<div id="conclusion" class="section level3">
+<h3>Conclusion</h3>
+<p>The results shown above may be a tad underwhelming, so it’s important to contextualise this a little. Clearly, there isn’t too much difference between the 3 algorithms for this 2 dimensional problem. As dimensionality increases, however, convergence is <strong>exponentially</strong> harder. A 2 dimensional problem with binary inputs only has <span class="math inline">\(2^2 = 4\)</span> solution, but a 10 dimensional problem with binary inputs has <span class="math inline">\(2^10 = 1024\)</span> solutions.</p>
+<p>Overall, the main idea behind DE that vector differences help to orient the direction of your updates is a powerful one, and the DE literature has evolved over the years since its introduction in 1996. In fact, it has even been used extensively in neural network convergence as an alternative to gradient descent.</p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>start here if you’re new to this!<a href="#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
 </div>

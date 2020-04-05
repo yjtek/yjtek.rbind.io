@@ -19,11 +19,12 @@ Bit of a lighter post after the MCMC series. Came across this article on the wai
 
 ### Introduction
 
-We all know that gnawing irritation we feel when, somehow, things are not as rosy as advertised. Bus schedules say that buses come every 10 minutes on average, but why do you somehow always end up waiting for a longer time? Schools say that their average class size is around 20, but a survey of students somehow shows that class sizes are higher than that on average? The observation that your friends on Facebook have more friends on average than you do?
+We all know that gnawing irritation we feel when, somehow, things are not as rosy as advertised. Bus schedules say that buses come every 10 minutes on average, but why does it always feel like you just missed the bus? Schools say that their average class size is around 20, but how do you always end up in a sardine-packed class? Why do your friends on Facebook always have more friends than you do?
 
-![Lies](/post/2020-04-02-the-inspection-paradox_files/Singapore-Bus-Stop-Poster-Guide.webp)
+![](/post/2020-04-02-the-inspection-paradox_files/Singapore-Bus-Stop-Poster-Guide.webp) <br>
+<span style="color: grey; font-style: italic;">Lies</span>
 
-Welcome to the inspection paradox, or the "why is my bus always late" paradox.
+Welcome to the inspection paradox, or as the cited post puts it, the "why is my bus always late" paradox.
 
 ### What is the inspection paradox?
 The inspection paradox occurs when the probability of observing a quantity is related to the quantity being observed. This definition is pretty convoluted on it's own, so let's talk about an intuitive example - class size.
@@ -106,4 +107,4 @@ This is a surprising result! Although the average time between buses is 10 minut
 Like the class size example above, this result arises because you have a higher chance of 'catching' in a time period where the time between buses is large (since it takes up a longer stretch of the number line), and this biases average waiting time upwards!
 
 ### Conclusion
-This was a really interesting result to me, because it's a prime example of how our statistical heuristics can end up working horrendously. Yes, I know that bus arrivals don't actually follow a uniform distribution, but I found this instructive as an example to illustrate the problem of the inspection paradox.
+This was a really interesting result to me, because it's a prime example of how our statistical heuristics can end up working horrendously. Yes, I know that bus arrivals don't actually follow a uniform distribution, but I found this instructive an example to illustrate the problem of our heuristics in statistical reasoning.

@@ -1,0 +1,63 @@
+---
+title: The Inspection Paradox
+author: yjtek
+date: '2020-04-02'
+slug: the-inspection-paradox
+categories: []
+tags: []
+---
+
+
+
+<p><em>Based on a blog post by <a href="http://jakevdp.github.io/blog/2018/09/13/waiting-time-paradox/">Jake VanderPlas</a>:</em></p>
+<p>Bit of a lighter post after the MCMC series. Came across this article on the waiting time paradox, and I thought it would be a good chance to try out the <code>reticulate</code> package on something light-hearted amidst this COVID outbreak.</p>
+<div id="introduction" class="section level3">
+<h3>Introduction</h3>
+<p>We all know that gnawing irritation we feel when, somehow, things are not as rosy as advertised. Bus schedules say that buses come every 10 minutes on average, but why do you somehow always end up waiting for a longer time? Schools say that their average class size is around 20, but a survey of students somehow shows that class sizes are higher than that on average? The observation that your friends on Facebook have more friends on average than you do?</p>
+<div class="figure">
+<embed src="/post/2020-04-02-the-inspection-paradox_files/Singapore-Bus-Stop-Poster-Guide.webp" />
+<p class="caption">Lies</p>
+</div>
+<p>Welcome to the inspection paradox, or the “why is my bus always late” paradox.</p>
+</div>
+<div id="what-is-the-inspection-paradox" class="section level3">
+<h3>What is the inspection paradox?</h3>
+<p>The inspection paradox occurs when the probability of observing a quantity is related to the quantity being observed. This definition is pretty convoluted on it’s own, so let’s talk about an intuitive example - class size.</p>
+<p>Imagine a university cohort of 100 students with 3 different classes in each semester. Class 1 has 70 students, class 2 has 20, and class 3 has 10. From the university’s perspective, the average class size is a straightforward <span class="math inline">\(\frac{100}{3} = 33\)</span>.</p>
+<p>What happens if the students are surveyed? Now the story is completely different! By definition, the class size of 70 is experienced by 70 students, which biases the sample average! Instead of <span class="math inline">\(\frac{100}{3} = 33\)</span>, we now have a weighted average of class size <span class="math inline">\((0.7 \cdot 70) + (0.2 \cdot 20) + (0.1 \cdot 10) = 54\)</span> instead.</p>
+<p>In other words, the probability of an individual observing a class size of 70 is directly related to the probability of him/her being in that class!</p>
+</div>
+<div id="seeing-this-in-practice" class="section level3">
+<h3>Seeing this in practice</h3>
+<p>Let’s see this for ourselves using a very relatable example: bus arrival timings. First, let’s simulate the arrival time of 100000 bus arrivals with 10 minutes as the average waiting time between buses. The timeline below shows the first 10 simulated bus arrivals assuming the arrivals are random.</p>
+<pre class="python"><code>import numpy as np
+import matplotlib.pyplot as plt
+simulated_bus_count = 100000
+time_between_buses = 10
+random = np.random.RandomState(1)
+bus_arrival_times = simulated_bus_count * time_between_buses * np.sort(random.random(simulated_bus_count))</code></pre>
+<pre><code>## ([], &lt;a list of 0 Text yticklabel objects&gt;)</code></pre>
+<p><img src="/post/2020-04-02-the-inspection-paradox_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>Great! Let’s just make sure that, on average, the time between arrivals is 10 minutes.</p>
+<pre class="python"><code>np.diff(bus_arrival_times).mean()</code></pre>
+<pre><code>## 9.999899149741081</code></pre>
+<p>Next, we simulate the arrival of passengers randomly along this range.</p>
+<pre class="python"><code>random = np.random.RandomState(123)
+num_passengers = 100000
+
+# Get passenger arrival time
+passenger_arrival_times = simulated_bus_count * time_between_buses * np.sort(random.random(num_passengers))</code></pre>
+<pre><code>## ([], &lt;a list of 0 Text yticklabel objects&gt;)</code></pre>
+<p><img src="/post/2020-04-02-the-inspection-paradox_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p>We overlay our randomly generated passengers on our bus timeline. Using the np.searchsorted() function, we input the array of bus and passenger arrivals, and the function returns an <code>index</code> of bus_arrival_times for which inserting each passenger_arrival_times[i] preserves the ordering of the array. Since side = ‘right’, it returns the largest possible value of the index, or the nearest possible bus arrival for each passenger. Using this, we compute the average waiting time for each passenger.</p>
+<pre class="python"><code>i = np.searchsorted(bus_arrival_times, passenger_arrival_times, side=&#39;right&#39;)
+average_waiting_time = (bus_arrival_times[i] - passenger_arrival_times).mean()
+print(average_waiting_time)</code></pre>
+<pre><code>## 10.061306085620576</code></pre>
+<p>This is a surprising result! Although the average time between buses is 10 minutes, passengers experience a 10 minute waiting time on average instead of 5mins, which you would expect if you can arrive randomly at any time between 2 buses.</p>
+<p>Like the class size example above, this result arises because you have a higher chance of ‘catching’ in a time period where the time between buses is large (since it takes up a longer stretch of the number line), and this biases average waiting time upwards!</p>
+</div>
+<div id="conclusion" class="section level3">
+<h3>Conclusion</h3>
+<p>This was a really interesting result to me, because it’s a prime example of how our statistical heuristics can end up working horrendously. Yes, I know that bus arrivals don’t actually follow a uniform distribution, but I found this instructive as an example to illustrate the problem of the inspection paradox.</p>
+</div>

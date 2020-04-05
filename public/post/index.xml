@@ -6,10 +6,21 @@
     <description>Recent content in Posts on Sandbox</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 04 Mar 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 02 Apr 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>The Inspection Paradox</title>
+      <link>/2020/04/02/the-inspection-paradox/</link>
+      <pubDate>Thu, 02 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/04/02/the-inspection-paradox/</guid>
+      <description>Based on a blog post by Jake VanderPlas:
+Bit of a lighter post after the MCMC series. Came across this article on the waiting time paradox, and I thought it would be a good chance to try out the reticulate package on something light-hearted amidst this COVID outbreak.
+Introduction We all know that gnawing irritation we feel when, somehow, things are not as rosy as advertised. Bus schedules say that buses come every 10 minutes on average, but why do you somehow always end up waiting for a longer time?</description>
+    </item>
     
     <item>
       <title>Markov Chain Monte Carlo (MCMC) - Differential Evolution</title>

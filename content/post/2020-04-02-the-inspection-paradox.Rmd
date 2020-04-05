@@ -21,8 +21,8 @@ Bit of a lighter post after the MCMC series. Came across this article on the wai
 
 We all know that gnawing irritation we feel when, somehow, things are not as rosy as advertised. Bus schedules say that buses come every 10 minutes on average, but why does it always feel like you just missed the bus? Schools say that their average class size is around 20, but how do you always end up in a sardine-packed class? Why do your friends on Facebook always have more friends than you do?
 
-![](/post/2020-04-02-the-inspection-paradox_files/Singapore-Bus-Stop-Poster-Guide.webp) <br>
-<span style="color: grey; font-style: italic;">Lies</span>
+<!-- ![](/post/2020-04-02-the-inspection-paradox_files/Singapore-Bus-Stop-Poster-Guide.webp) <br> -->
+<!-- <span style="color: grey; font-style: italic;">Lies</span> -->
 
 Welcome to the inspection paradox, or as the cited post puts it, the "why is my bus always late" paradox.
 

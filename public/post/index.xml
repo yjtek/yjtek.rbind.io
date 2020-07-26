@@ -6,10 +6,20 @@
     <description>Recent content in Posts on Sandbox</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 02 Apr 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 26 Jul 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Monty Hall Redux</title>
+      <link>/2020/07/26/monty-hall-redux/</link>
+      <pubDate>Sun, 26 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/07/26/monty-hall-redux/</guid>
+      <description>Adapted from Drew Dickson. Introduction I took a bit of a hiatus from this blogging thing due to the on-going prep work for my Tensorflow certification. Came across this pseudo Monty Hall problem, and the results are so delightfully unintuitive that I thought I should do a quick post to celebrate this.
+ Problem set up Imagine if you’re told that a couple has two children, and one of them is a girl.</description>
+    </item>
     
     <item>
       <title>The Inspection Paradox</title>

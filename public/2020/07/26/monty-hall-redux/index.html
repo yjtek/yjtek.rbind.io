@@ -91,7 +91,7 @@
 </div>
 <div id="discussion" class="section level3">
 <h3>Discussion</h3>
-<p>I think it’s ridiculously intuitive to simply say 50%, similar to the <a href="https://en.wikipedia.org/wiki/Monty_Hall_problem">Monty Hall Problem</a>. This answer comes from our intuition that children’s genders are essentially a coin flip (cclearly not a biologist). Having a son doesn’t, <em>shouldn’t</em> increase your odds of subsequently having either a son or a daughter, right?</p>
+<p>I think it’s ridiculously intuitive to simply say 50%, similar to the <a href="https://en.wikipedia.org/wiki/Monty_Hall_problem">Monty Hall Problem</a>. This answer comes from our intuition that children’s genders are essentially a coin flip (clearly not a biologist). Having a son doesn’t, <em>shouldn’t</em> increase your odds of subsequently having either a son or a daughter, right?</p>
 <p>As it turns out, it really depends on how you frame this problem, which why this is a marvellous lesson on why we can’t trust our statistical intuition.</p>
 <p>Let’s address the first problem by drawing out the possible space of solutions. Given that a couple has 2 children, there are 4 possible gender combinations:</p>
 <table>
@@ -134,7 +134,7 @@ families %&gt;%
   mutate(bothGirls = if_else(child1 == &#39;F&#39; &amp; child2 == &#39;F&#39;, 1, 0)) %&gt;%
   summarise(mean(bothGirls))</code></pre>
 <pre><code>##   mean(bothGirls)
-## 1       0.3330851</code></pre>
+## 1       0.3345848</code></pre>
 <p>As expected, conditional on the information that one of the two children is a girl, the remaining child is more likely to be a boy!</p>
 <p>What if we knew the birth order of the girl? Suppose now we know that (i) at least 1 child is a girl, and (ii) the first child is a girl. By the logic above, we are now restricted only to cases 3 and 4, and we should now see that the probability of the second child being a girl has increased to 50%.</p>
 <pre class="r"><code>families %&gt;%
@@ -142,12 +142,12 @@ families %&gt;%
   mutate(bothGirls = if_else(child2 == &#39;F&#39;, 1, 0)) %&gt;%
   summarise(mean(bothGirls))</code></pre>
 <pre><code>##   mean(bothGirls)
-## 1       0.5019838</code></pre>
+## 1       0.5018371</code></pre>
 </div>
 <div id="conclusion" class="section level3">
 <h3>Conclusion</h3>
-<p>Notice how the difference between problems 1 and 2 is minimal. The only additional information you get is that it is the first child that is female. Even though this provides us useful informataion that we don’t otherwise have, it doesn’t seem intuitive to us that this additional information is related to the probability of the second child’s gender, and is hence discarded!</p>
-<p>The takeaway here is that statistical intuition is a tricky beast to control, so we need to be quite careful about how we draw conclusions in the course of work. A simple case where you can exploit this intuitive failing is by a simple coin flip bet. Flip 2 coins, reveal that one of them comes up heads, and take bets on the probability that the other comes up heads as well. At the “fair” odds of 2:1, you’ll be netting a pretty solid profit margin. (:</p>
+<p>Notice how the difference between problems 1 and 2 is minimal. The only additional information you get is that it is the first child that is female. Even though this provides us useful information that affects our probability space, it is counter-intuitive that this additional information is even related to the probability of the second child’s gender, and is hence discarded!</p>
+<p>The takeaway here is that our statistical intuition is a tricky beast to control, so we need to be quite careful about how we draw conclusions in the course of work. A simple case where you can exploit this intuitive failing is by a simple coin flip bet. Flip 2 coins, reveal that one of them comes up heads, and take bets on the probability that the other comes up heads as well. At the “fair” odds of 2:1, you’ll be netting a pretty solid profit margin. (:</p>
 </div>
 
     </div>
